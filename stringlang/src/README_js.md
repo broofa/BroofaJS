@@ -1,5 +1,5 @@
 ```javascript --hide
-runmd.onRequire = path => path.replace(/^stringlang/, './');
+runmd.onRequire = path => path.replace(/^@broofa\/\w+/, '..');
 ```
 
 # StringLang
@@ -15,7 +15,7 @@ npm i @broofa/stringlang
 ## Example
 
 ```javascript --run
-const StringLang = require('stringlang');
+const StringLang = require('@broofa/stringlang');
 
 const sl = new StringLang('Hello World or Καλημέρα κόσμε or こんにちは 世界');
 
