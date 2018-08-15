@@ -1,0 +1,20 @@
+{
+  "name": "@broofa/asyncproxy",
+  "version": "1.0.0",
+  "description": "A simple, intuitive solution for converting node-style APIs to Promises.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/test.js"
+  },
+  "keywords": [
+    "promisify",
+    "promisifyAll",
+    "promiseproxy",
+    "bluebird"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}
