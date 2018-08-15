@@ -1,0 +1,9 @@
+**/bootstrap
+**/bundle.js
+**/dist
+**/node_modules
+**/vendor
+**/swagger-ui
+**/viz-lite.js
+**/markerclusterer
+**/aws-build
