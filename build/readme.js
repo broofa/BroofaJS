@@ -6,13 +6,14 @@ const path = require('path');
 
 async function main() {
   const nodes = fs.readdirSync('.');
-  let subpackages = await globby(['**/*/package.json', '!node_modules']);
+  let subpackages = await globby(['**/*/package.json', '!**/node_modules/**']);
+  console.log(subpackages);
   subpackages = subpackages.map(path => {
     const pkg = require('../' + path);
     const pkgName = path.replace('/package.json', '');
 
     return `
-## [${pkg.name}](./tree/master/${pkgName})
+## [${pkg.name}](${pkgName})
 
 ${pkg.description}
     `
