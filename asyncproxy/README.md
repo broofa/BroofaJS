@@ -12,7 +12,7 @@ Key features ...
 * **Zero API footprint**.  Does not modify the original API.
 * **Drop-in replacement**.  asyncProxy objects are literal proxies for the original API.  Treat them exactly as you would the original API.
 * **Simple promisification logic**. Just add "Async" to method name.  `api.fooAsync()` == `api.foo()`-promisified.
-* **Simple multi-args logic**.  API callback takes more one argument?  Array destructuring, FTW!
+* **Simple multi-args logic**.  API callback takes more than one argument?  Array destructuring, FTW!
 
 ## Installation
 
@@ -26,20 +26,20 @@ npm i @broofa/asyncproxy
 const asyncProxy = require('@broofa/asyncproxy');
 ```
 
-## Example: Promisify `fs.readFile` (Basic usage)
+## Example: Promisify `fs.readFile` (basic usage)
 
 ```javascript
 // Wrap api in asyncProxy()
 const fs = asyncProxy(require('fs'));
 
-// asyncProxy-ified fs object is *identical* to original API(!!!)
+// An asyncProxy-ified apis is *identical* to the original api
 console.log(fs === require('fs'));  // ==> true
 
-// ... but exposes ***Async methods that return promises:
+// ... but promisifies any method invoked as `${methodName}Async`
 const fileContents = await fs.readFileAsync('README.md', 'utf8');
 ```
 
-## Example: Promisify `child.exec` (multible callback arguments)
+## Example: Promisify `child.exec` (multiple callback arguments)
 
 Anytime 2+ arguments are passed to a callback, the Promise resolves to an
 argument Array:
@@ -54,13 +54,14 @@ let [stdout, stderr] = await execAsync('ls');
 
 ## Example: Custom method name pattern
 
-Appending `Async` to indicate a promise-returning method is a de-facto standard
-of sorts, but this may not always be desirable.  The `methodRegex` option can be
-used to supply custom regex for identifying methods that should be promisified.
-E.g.  For a prefix of "a\_":
+Appending `Async` to indicate a promise-returning method is the general
+convention, but this may not always be desirable.  The `methodRegex` option
+is used to detect which methods should be promisified.
+
+E.g.  To use an "async\_"-prefix:
 
 ```
-const fs = asyncProxy(require('fs'), {methodRegex: /^a_/});
+const fs = asyncProxy(require('fs'), {methodRegex: /^async_/});
 
-const fileContents = await fs.a_readFile('README.md', 'utf8');
+const fileContents = await fs.async_readFile('README.md', 'utf8');
 ```

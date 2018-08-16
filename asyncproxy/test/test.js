@@ -26,6 +26,18 @@ describe(__filename, () => {
     assert.equal(1, await papi.passthruAsync(1));
   });
 
+  it('complains on non-functions', async () => {
+    const papi = asyncProxy(api);
+    try {
+      await papi.noSuchMethodAsync();
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    throw Error('Failed to throw');
+  });
+
   it('throws', async () => {
     const papi = asyncProxy(api);
     try {

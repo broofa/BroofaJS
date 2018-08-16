@@ -1,5 +1,5 @@
 module.exports = function(_target, options) {
-  options = {methodRegex: /Async$/, ...options};
+  const {methodRegex} = {methodRegex: /Async$/, ...options};
 
   const memo = new Map();
 
@@ -11,13 +11,17 @@ module.exports = function(_target, options) {
       // If property isn't in the memo cache ...
       if (!memo.has(k)) {
         // Extract base method name
-        const method = k.replace(options.methodRegex, '');
+        const originalMethod = k.replace(methodRegex, '');
 
         // If it's different (i.e. matches regex), then promisify
-        if (k !== method && typeof(target[method]) == 'function') {
+        if (k !== originalMethod) {
+          if (typeof(target[originalMethod]) != 'function') {
+            throw Error(`${k} can't promisify ${originalMethod} because it's not a function`);
+          }
+
           const promisified = function(...args) {
             return new Promise(function(resolve, reject) {
-              target[method](...args, function(err, ...results) {
+              target[originalMethod](...args, function(err, ...results) {
                 if (err) {
                   reject(err);
                 } else {
