@@ -6,6 +6,10 @@
   "scripts": {
     "test": "mocha test/test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/broofa/BroojaJS/asyncproxy"
+  },
   "keywords": [
     "promisify",
     "promisifyAll",
