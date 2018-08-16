@@ -1,10 +1,14 @@
 {
   "name": "@broofa/asyncproxy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple, intuitive solution for converting node-style APIs to Promises.",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/broofa/BroojaJS/asyncproxy"
   },
   "keywords": [
     "promisify",
