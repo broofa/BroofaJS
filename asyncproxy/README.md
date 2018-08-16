@@ -4,69 +4,63 @@ A simple, intuitive solution for converting node-style APIs to Promises.
 
 This module is similar to utilities such as `bluebird.promisifyAll` and
 `promiseproxy`. The main difference is that it's behavior is driven by calling
-code rather than magical introspection or cumbersome configuration options.
+code rather than magical introspection or ad-hoc configuration options.
 
 Key features ...
 
 * **Tiny**. No dependencies, ~0.3KB when minified/compressed.
-* **Zero API footprint**.  Does not change or touch the original API.
-* **Drop-in replacement**.  asyncProxy objects look like/feel like/interact with the original API.
-* **Simple promisification logic**. Just add "Async".  `api.fooAsync()` ==
-`api.foo()`-promisified.
-* **Simple multi-args logic**.  Promise resolves to the callback result (for 0-1 result argument) or an Array of results (for 2+ arguments)
+* **Zero API footprint**.  Does not modify the original API.
+* **Drop-in replacement**.  asyncProxy objects are literal proxies for the original API.  Treat them exactly as you would the original API.
+* **Simple promisification logic**. Just add "Async" to method name.  `api.fooAsync()` == `api.foo()`-promisified.
+* **Simple multi-args logic**.  API callback takes more one argument?  Array destructuring, FTW!
 
 ## Installation
+
+You know the drill ...
 
 ```
 npm i @broofa/asyncproxy
 ```
 
-## Example: Basic usage
+``` javascript
+const asyncProxy = require('@broofa/asyncproxy');
+```
+
+## Example: Promisify `fs.readFile` (Basic usage)
 
 ```javascript
-const asyncProxy = require('@broofa/asyncproxy');
-
-// Get asyncProxy wrapper for the API
+// Wrap api in asyncProxy()
 const fs = asyncProxy(require('fs'));
 
-// Add 'Async' to the method name to call the promisified version
-fs.readFileAsync('README.md', 'utf8')  // (Note `Async` suffix on method name)
-  .then(data => console.log(data));
+// asyncProxy-ified fs object is *identical* to original API(!!!)
+console.log(fs === require('fs'));  // ==> true
 
-// ... or async/await-style
-const data = await fs.readFileAsync('README.md');
-console.log(data);
+// ... but exposes ***Async methods that return promises:
+const fileContents = await fs.readFileAsync('README.md', 'utf8');
 ```
 
-## Example: Multi-arg callbacks
+## Example: Promisify `child.exec` (multible callback arguments)
 
-In cases where an API passes 2+ arguments to a callback, the Promise will
-resolve to an Array containing the arguments.
+Anytime 2+ arguments are passed to a callback, the Promise resolves to an
+argument Array:
 
 ```
-const asyncProxy = require('@broofa/asyncproxy');
+// Promisified `exec` method
+const child_process = asyncProxy(require('child_process'));
 
-// Get promisified method (with some ES6 object-comprehension sugar for good measure)
-const {execAsync} = asyncProxy(require('child_process'));
-
-// Promise#then()-style, using Array comprehension to assign args
-execAsync('ls')
-  .then(function([stdout, stderr]) {...});
-
-// ... or async/await-style
+// Use array destructuring to extract result values
 let [stdout, stderr] = await execAsync('ls');
 ```
 
-## Example: Custom name pattern
+## Example: Custom method name pattern
 
-Appending `Async` to method names is a de-facto standard (e.g. bluebird does this),
-however this may not always be desirable.  If you'd prefer a different naming
-scheme, you may supply a custom regex for detecting promisified methods.  E.g.
-To use a prefix of "a\_", you might do the following:
+Appending `Async` to indicate a promise-returning method is a de-facto standard
+of sorts, but this may not always be desirable.  The `methodRegex` option can be
+used to supply custom regex for identifying methods that should be promisified.
+E.g.  For a prefix of "a\_":
 
 ```
 const fs = asyncProxy(require('fs'), {methodRegex: /^a_/});
 
-fs.a_readFile('README.md', 'utf8')
-  .then(data => console.log(data));
+const fileContents = await fs.a_readFile('README.md', 'utf8');
 ```

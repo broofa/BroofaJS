@@ -1,0 +1,24 @@
+{
+  "name": "@broofa/core",
+  "private": true,
+  "devDependencies": {
+    "globby": "^8.0.1"
+  },
+  "description": "Misc. JS utilities that may be of broader interest.  See subdirectories for documentation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "readme": "./build/readme.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/broofa/BroofaJS.git"
+  },
+  "author": "Robert Kieffer <robert@broofa.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/broofa/BroofaJS/issues"
+  },
+  "homepage": "https://github.com/broofa/BroofaJS#readme"
+}
