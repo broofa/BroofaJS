@@ -6,7 +6,7 @@
 function rangeCount(str, min, max) {
   const re = new RegExp(`[\\u{${min.toString(16)}}-\\u{${max.toString(16)}}]`, 'gu');
   const count = str.length - str.replace(re, '').length;
-  // Code points > 0xffff require count 2x in JS strings, so divide by 2
+  // Code points > 0xffff require 2 chars per Unicode code point, so divide by 2
   return min > 0xffff ? count / 2 : count;
 }
 
