@@ -1,6 +1,6 @@
 {
   "name": "@broofa/stringlang",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Count string characters by unicode block",
   "main": "index.js",
   "dependencies": {},
@@ -12,6 +12,7 @@
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "runmd --output=README.md src/README_js.md"
   },
+  "homepage": "https://github.com/broofa/BroofaJS/stringlang",
   "repository": {
     "type": "git",
     "url": "https://github.com/broofa/BroofaJS"

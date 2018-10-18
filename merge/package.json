@@ -1,6 +1,6 @@
 {
   "name": "@broofa/merge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Merge immutable JSON data structures to allow for identity (===) comparisons on deeply-equal subtrees",
   "main": "index.js",
   "dependencies": {
@@ -14,6 +14,7 @@
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "runmd --output=README.md src/README_js.md"
   },
+  "homepage": "https://github.com/broofa/BroofaJS/merge",
   "repository": {
     "type": "git",
     "url": "https://github.com/broofa/BroofaJS"
