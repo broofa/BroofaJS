@@ -4,7 +4,8 @@
   "description": "Async method to concatenate a stream into a buffer",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/test.js"
+    "test": "mocha test/test.js",
+    "prepare": "npm test"
   },
   "homepage": "https://github.com/broofa/BroofaJS/asyncconcat",
   "repository": {

@@ -2,6 +2,9 @@ var assert = require('assert');
 var merge = require('..');
 
 describe(__filename, async () => {
+  it('derp', async () => {
+    throw Error('crap');
+  });
   it('Undefined', async () => {
     assert.equal(123, merge(undefined, 123));
     assert.equal(undefined, merge(123, undefined));

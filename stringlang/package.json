@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "md": "runmd --watch --output=README.md src/README_js.md",
-    "prepare": "runmd --output=README.md src/README_js.md"
+    "prepare": "npm test && runmd --output=README.md src/README_js.md"
   },
   "homepage": "https://github.com/broofa/BroofaJS/stringlang",
   "repository": {

@@ -4,6 +4,7 @@
   "description": "A simple, intuitive solution for converting node-style APIs to Promises.",
   "main": "index.js",
   "scripts": {
+    "prepare": "npm test",
     "test": "mocha test/test.js"
   },
   "homepage": "https://github.com/broofa/BroofaJS/asyncproxy",
