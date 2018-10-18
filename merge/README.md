@@ -4,16 +4,22 @@
 
 # merge
 
-Merge immutable model state (or any data structure, really), preserving references to unchanged nodes.  This
-allows for `===` operation to determine where state has changed.  (Useful when
- dealing with immutable data models such as React+Redux, where `===` is used for
- exactly this purpose.)
+Merge immutable model state (or any data structure, really), preserving references to unchanged nodes, such that the `===` operation can be used to determine where state has changed.  (Useful when dealing with immutable data models such as React+Redux, where `===` is used for exactly this purpose.)
 
-In practical terms, where `state = merge(before, after)` the returned `state` object has the following properties:
+Specifically, given
 
-* `assert.deepEqual(state, after)` will always be true
-* `state[X] === before[X]` will be true where `deepEqual(before[X], after[X])`
-* `state[X] === after[X]` will be true where `after[X]` replaces all `before[X]` state
+* Two JSON data structures, `before` and `after`
+* `state = merge(before, after)`
+
+Then:
+
+* `assert.deepEqual(state, after)` always passes
+
+And for any path, `[X]`, to an Object or Array within `state`:
+
+* `state[X] === before[X]` where `assert.deepEqual(before[X], state[X])` passes
+* `state[X] === after[X]` where no part of `after[X]` is equal to `before[X]`
+* `state[X] === (new Object/Array)` when some, but not all state w/in `[X]` has changed
 
 ## Installation
 

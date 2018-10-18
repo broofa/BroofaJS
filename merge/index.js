@@ -3,13 +3,13 @@
  * @param {primitive} after
  */
 function merge(before, after) {
-  // Identical?
+  // Same object
   if (before === after) return before;
 
-  // Undefined or null?
+  // Undefined or null
   if (before == null || after == null) return after;
 
-  // Different types?
+  // Different types
   if (before.constructor !== after.constructor) return after;
 
   let type = before.constructor.name;
