@@ -1,0 +1,32 @@
+{
+  "name": "@broofa/merge",
+  "version": "1.0.0",
+  "description": "Deep merge JSON structures to allow \"===\" comparison for deep-equality",
+  "main": "index.js",
+  "dependencies": {
+    "mocha": "^5.2.0"
+  },
+  "devDependencies": {
+    "runmd": "^1.0.1"
+  },
+  "scripts": {
+    "test": "mocha test/test.js",
+    "md": "runmd --watch --output=README.md src/README_js.md",
+    "prepare": "runmd --output=README.md src/README_js.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/broofa/BroofaJS"
+  },
+  "keywords": [
+    "assign",
+    "clone",
+    "deep",
+    "json",
+    "merge",
+    "object",
+    "recursive"
+  ],
+  "author": "Robert Kieffer",
+  "license": "ISC"
+}
