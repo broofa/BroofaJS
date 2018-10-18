@@ -4,8 +4,16 @@ runmd.onRequire = path => path.replace(/^@broofa\/\w+/, '..');
 
 # merge
 
-Merge immutable JSON data structures to allow for identity (===) comparisons on
-deeply-equal subtrees.
+Merge immutable model state (or any data structure, really), preserving references to unchanged nodes.  This
+allows for `===` operation to determine where state has changed.  (Useful when
+ dealing with immutable data models such as React+Redux, where `===` is used for
+ exactly this purpose.)
+
+In practical terms, where `state = merge(before, after)` the returned `state` object has the following properties:
+
+* `assert.deepEqual(state, after)` will always be true
+* `state[X] === before[X]` will be true where `deepEqual(before[X], after[X])`
+* `state[X] === after[X]` will be true where `after[X]` replaces all `before[X]` state
 
 ## Installation
 
@@ -19,36 +27,29 @@ npm i @broofa/merge
 const assert = require('assert');
 const merge = require('@broofa/merge');
 
-const obj0 = {
+const before = {
   a: 'hello',
   b: 123,
-  c: {
-    ca: 'zig',
-    cb: [{a:1}, {b:2}]
-  },
+  c: {ca: ['zig'], cb: [{a:1}, {b:2}]},
 };
 
-const obj1 = {
+const after = {
   a: 'world',
-  c: {
-    ca: {a: 1},
-    cb: [{a:99}, {b:2}]
-  },
+  b: 123,
+  c: {ca: ['zig'], cb: [{a:99}, {b:2}]},
 };
 
-const result = merge(obj0, obj1);
+const state = merge(before, after);
 
-// Result will always be deepEqual to right-most argument
-assert.deepEqual(obj1, result);
+assert.deepEqual(after, state); // Always true
 
-// root.c has changed, so is not identical
-result.c === obj0.c; // RESULT
+// Where state HAS changed
+state === before; // RESULT
+state.c === before.c; // RESULT
+state.c.cb === before.c.cb; // RESULT
+state.c.cb[0] === before.c.cb[0]; // RESULT
 
-// ... same goes for root.c.ca and root.c.cb and root.c.cb[0]
-result.c.ca === obj0.c.ca; // RESULT
-result.c.cb === obj0.c.cb; // RESULT
-result.c.cb[0] === obj0.c.cb[0]; // RESULT
-
-// 'But root.c.cb[1] hasn't, so `===` works!
-result.c.cb[1] === obj0.c.cb[1]; // RESULT
+// Where state HAS NOT changed
+state.c.ca === before.c.ca; // RESULT
+state.c.cb[1] === before.c.cb[1]; // RESULT
 ```

@@ -1,47 +1,48 @@
-function merge(a, b) {
+/**
+ * @param {primitive} before
+ * @param {primitive} after
+ */
+function merge(before, after) {
   // Identical?
-  if (a === b) return a;
+  if (before === after) return before;
 
   // Undefined or null?
-  if (a == null || b == null) return b;
+  if (before == null || after == null) return after;
 
   // Different types?
-  if (a.constructor !== b.constructor) return b;
+  if (before.constructor !== after.constructor) return after;
 
-  let type = typeof(a);
-  if (a.getTime) type = 'date' // Not JSON, but useful
-  if (Array.isArray(a)) type = 'array';
-
+  let type = before.constructor.name;
   switch (type) {
-      // '===' comparable tyeps
-    case 'boolean':
-    case 'number':
-    case 'string': // Not strictly JSON but useful
-      return a === b ? a : b;
+    case 'Boolean':
+    case 'Number':
+    case 'String':
+    case 'Symbol':
+      return before === after ? before : after;
 
-    case 'date':
-      return a.getTime() === b.getTime() ? a : b;
+    case 'Date': // Not strictly JSON but useful
+      return before.getTime() === after.getTime() ? before : after;
 
-    case 'object': {
+    case 'Object': {
       let isEqual = true;
       const merged = {};
-      for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
-        const val = merge(a[k], b[k]);
-        isEqual = isEqual && val === a[k];
+      for (const k of new Set([...Object.keys(before), ...Object.keys(after)])) {
+        const val = merge(before[k], after[k]);
+        isEqual = isEqual && val === before[k];
         if (val !== undefined) merged[k] = val;
       }
-      return isEqual ? a : merged;
+      return isEqual ? before : merged;
     }
 
-    case 'array': {
-      let isEqual = a.length === b.length;
-      const merged = new Array(Math.max(a.length, b.length));
+    case 'Array': {
+      let isEqual = before.length === after.length;
+      const merged = new Array(Math.max(before.length, after.length));
       for (let k = 0, l = merged.length; k < l; k++) {
-        const val = merge(a[k], b[k]);
-        isEqual = isEqual && val === a[k];
+        const val = merge(before[k], after[k]);
+        isEqual = isEqual && val === before[k];
         if (val !== undefined) merged[k] = val;
       }
-      return isEqual ? a : merged;
+      return isEqual ? before : merged;
     }
 
     default:
