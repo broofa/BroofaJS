@@ -1,7 +1,7 @@
 {
   "name": "@broofa/merge",
   "version": "1.0.0",
-  "description": "Deep merge JSON structures to allow \"===\" comparison for deep-equality",
+  "description": "Merge immutable JSON data structures to allow for identity (===) comparisons on deeply-equal subtrees",
   "main": "index.js",
   "dependencies": {
     "mocha": "^5.2.0"

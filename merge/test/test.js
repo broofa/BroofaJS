@@ -2,6 +2,16 @@ var assert = require('assert');
 var merge = require('..');
 
 describe(__filename, async () => {
+  it('Undefined', async () => {
+    assert.equal(123, merge(undefined, 123));
+    assert.equal(undefined, merge(123, undefined));
+  });
+
+  it('Null', async () => {
+    assert.equal(123, merge(null, 123));
+    assert.equal(null, merge(123, null));
+  });
+
   it('Boolean', async () => {
     assert.equal(true, merge(true, true));
     assert.equal(false, merge(true, false));
@@ -29,6 +39,7 @@ describe(__filename, async () => {
     const c = [1, 'abc', true];
 
     assert.equal(a, merge(a, b));
+    assert.notEqual(c, merge(a, c)); // Has entries from both, so is new array
     assert.deepEqual(c, merge(a, c));
   });
 
@@ -38,6 +49,7 @@ describe(__filename, async () => {
     const c = {bar: 222, a: 'bbb'};
 
     assert.equal(a, merge(a, b));
+    assert.notEqual(c, merge(a, c)); // Has entries from both, so is new object
     assert.deepEqual(c, merge(a, c));
   });
 

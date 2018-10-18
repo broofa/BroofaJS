@@ -18,7 +18,8 @@ async function main() {
   fs.writeFileSync(path.join(__dirname, '../README.md'), `
 # BroofaJS
 
-Misc. JS utilities that may be of broader interest
+Misc. JS modules that may be of broader interest.  Each module is independent of the others, and
+often free from dependencies on other modules.  License is typically ISC, but see the respective\`package.json\` files for detailed info.
 
 | module | description |
 | --- | --- |
