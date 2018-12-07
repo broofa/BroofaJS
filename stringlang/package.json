@@ -12,10 +12,9 @@
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "npm test && runmd --output=README.md src/README_js.md"
   },
-  "homepage": "https://github.com/broofa/BroofaJS/stringlang",
   "repository": {
     "type": "git",
-    "url": "https://github.com/broofa/BroofaJS"
+    "url": "https://github.com/broofa/BroofaJS/tree/master/stringlang"
   },
   "keywords": [
     "Unicode",

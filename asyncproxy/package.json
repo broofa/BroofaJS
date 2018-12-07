@@ -7,10 +7,9 @@
     "prepare": "npm test",
     "test": "mocha test/test.js"
   },
-  "homepage": "https://github.com/broofa/BroofaJS/asyncproxy",
   "repository": {
     "type": "git",
-    "url": "https://github.com/broofa/BroofaJS"
+    "url": "https://github.com/broofa/BroofaJS/tree/master/asyncproxy"
   },
   "keywords": [
     "promisify",
