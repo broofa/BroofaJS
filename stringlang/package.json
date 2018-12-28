@@ -1,6 +1,6 @@
 {
   "name": "@broofa/stringlang",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Count string characters by unicode block",
   "main": "index.js",
   "dependencies": {},
@@ -8,7 +8,7 @@
     "runmd": "^1.0.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test",
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "npm test && runmd --output=README.md src/README_js.md"
   },
