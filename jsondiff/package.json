@@ -1,7 +1,7 @@
 {
-  "name": "@broofa/merge",
-  "version": "1.0.4",
-  "description": "Merge immutable JSON data structures to allow for identity (===) comparisons on deeply-equal subtrees",
+  "name": "@broofa/jsondiff",
+  "version": "1.0.0",
+  "description": "Pragmatic, intuitive diffing and patching of JSON objects",
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
@@ -9,21 +9,23 @@
     "runmd": "^1.0.1"
   },
   "scripts": {
-    "test": "mocha test/test.js",
+    "test": "mocha test/*.js",
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "npm test && runmd --output=README.md src/README_js.md"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/broofa/BroofaJS/tree/master/merge"
+    "url": "https://github.com/broofa/BroofaJS/tree/master/jsondiff"
   },
   "keywords": [
+    "RFC 6902",
     "assign",
     "clone",
     "deep",
+    "diff",
     "json",
-    "merge",
     "object",
+    "patch",
     "recursive"
   ],
   "author": "Robert Kieffer",
