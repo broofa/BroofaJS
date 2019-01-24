@@ -122,5 +122,5 @@ module.exports = {
   diff,
   patch(before, _diff) {return _patch(before, _diff);},
   mask(before, _diff) {return _patch(before, _diff, true);},
-  merge(before, after) {return patch(before, diff(before, after));}
+  merge(before, after) {return _patch(before, diff(before, after));}
 };
