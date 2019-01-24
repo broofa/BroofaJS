@@ -33,7 +33,7 @@ performance in contexts where data is not compressed (e.g. websockets)
 3. **Fault tolerance** - Operation-based patches can fail if operations are applied out of order or if the target object does not have the expected structure.
 4. **Wonky hack** - Full disclosure:  This module does require a small(?) hack to handle
    the cases where a value is deleted or an array changes.  This may be
-   off-putting to some readers.  See comments about `HACK` and `KEEP`, below
+   off-putting to some readers.  See comments about `DROP` and `KEEP`, below
 
 ## Installation
 
