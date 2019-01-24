@@ -24,27 +24,27 @@ function diff(before, after) {
 
     case 'Object': {
       let isEqual = true;
-      const _ = {};
+      const values = {};
       for (const k of new Set([...Object.keys(before), ...Object.keys(after)])) {
         const val = diff(before[k], after[k]);
         if (val !== KEEP) {
-          _[k] = val;
+          values[k] = val;
           isEqual = false;
         }
       }
 
-      return isEqual ? KEEP : _;
+      return isEqual ? KEEP : values;
     }
 
     case 'Array': {
       let isEqual = before.length === after.length;
-      const _ = new Array(after.length);
-      for (let i = 0, l = _.length; i < l; i++) {
-        _[i] = diff(before[i], after[i]);
-        if (_[i] !== KEEP) isEqual = false;
+      const values = new Array(after.length);
+      for (let i = 0, l = values.length; i < l; i++) {
+        values[i] = diff(before[i], after[i]);
+        if (values[i] !== KEEP) isEqual = false;
       }
 
-      return isEqual ? KEEP : _;
+      return isEqual ? KEEP : values;
     }
 
     default:
@@ -52,69 +52,75 @@ function diff(before, after) {
   }
 };
 
-function patch(before, _diff) {
+function _patch(before, _diff, isMask = false) {
   if (_diff === DROP) return undefined;
-  if (before === _diff || _diff === KEEP) return before;
-  if (before == null || _diff == null) return _diff;
+  if (_diff === KEEP) _diff = before;
+  if (_diff == null) return _diff;
 
-  const type = before.constructor.name;
+  if (before === _diff) return before;
 
-  // Different types
-  if (type !== _diff.constructor.name) return _diff;
+  const beforeType = before == null ? 'null' : before.constructor.name;
+  const type = _diff.constructor.name;
 
-  // Pick before v. diff value
+  if (beforeType !== type) {
+    switch (type) {
+      case 'Object': before = {}; break;
+      case 'Array': before = []; break;
+      default: return _diff;
+    }
+  }
+
   switch (type) {
     case 'Boolean':
     case 'Number':
     case 'String':
     case 'Symbol':
-      return before === _diff ? before : _diff;
-
+      break;
     case 'Date': // Not strictly JSON but useful
-      return before.getTime() === _diff.getTime() ? before : _diff;
+      if (before.getTime() == _diff.getTime()) _diff = before;
+      break;
 
     case 'Object': {
       let isEqual = true;
-      const _ = {...before};
+      const values = isMask ? {} : {...before};
       for (const k in _diff) {
-        const val = patch(before[k], _diff[k]);
-        isEqual = isEqual && val === before[k];
-        if (val === undefined || val === DROP) {
-          delete _[k];
+        let val = _patch(before[k], _diff[k], isMask);
+        if (val === undefined) {
+          delete values[k];
         } else {
-          _[k] = val;
+          if (val !== before[k]) isEqual = false;
+          values[k] = val;
         }
       }
-      return isEqual ? before : _;
+
+      _diff = isEqual ? before : values;
+      break;
     }
 
     case 'Array': {
-      let _ = new Array(_diff.length);
+      const values = new Array(_diff.length);
       let isEqual = before.length === _diff.length;
       for (let i = 0, l = _diff.length; i < l; i++) {
-        const val = patch(before[i], _diff[i]);
-        if (val === before[i] || val === KEEP) {
-          _[i] = before[i];
-        } else {
-          isEqual = false;
-          _[i] = val === DROP ? undefined : val;
-        }
-      }
+        const val = _patch(before[i], _diff[i], isMask);
 
-      return isEqual ? before : _;
+        if (val !== before[i]) isEqual = false;
+        values[i] = val;
+      }
+      _diff = isEqual ? before : values;
+      break;
     }
 
     default:
       throw Error(`Unexpected type: ${type}`);
   }
+  return before === _diff ? before : _diff;
 };
 
 module.exports = {
   DROP,
   KEEP,
   diff,
-  patch,
-  merge(before, after) {
-    return patch(before, diff(before, after));
-  }
+  patch(before, _diff) {return _patch(before, _diff);},
+  mask(before, _diff) {return _patch(before, _diff, true);},
+  merge(before, after) {return patch(before, diff(before, after));}
 };

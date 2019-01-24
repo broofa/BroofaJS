@@ -72,10 +72,15 @@ Note: Any result value that is deep-equal to it's `before` counterpart will
 reference simply reference the 'before' value.  Thus, `===` can be used to test
 for deep equality.
 
+### jsondiff.mask(before, patchObject)
+
+Similar to patch(), but omits values not defined in `patchObject`.  I.e. Creates
+a version of `before` as "masked" by the patchObject.
+
 ### jsondiff.merge(before, after)
 
 Shorthand for `patch(before, diff(before, after))`.  Useful for
-updating an data structure references only where actual values have changed.
+updating an mutating an object only where values have actually changed.
 
 ## Patch Objects
 

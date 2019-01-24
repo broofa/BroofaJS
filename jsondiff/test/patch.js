@@ -1,5 +1,5 @@
 var assert = require('assert');
-var {diff, patch} = require('..');
+var {diff, patch, mask, DROP, KEEP} = require('..');
 
 describe(__filename, async () => {
   it('Undefined', async () => {
@@ -38,8 +38,9 @@ describe(__filename, async () => {
     const b = [1, 'abc', [1,2]];
     const c = [1, 'abc', true];
 
-    assert.equal(a, patch(a, b));
-    //assert.equal(c, patch(a, c));
+    assert.deepEqual(a, patch(a, b));
+    assert.deepEqual([undefined, 1], patch(123, [KEEP,1]));
+    assert.deepEqual({a: 1}, patch(123, {a: 1, b: DROP}));
   });
 
   it('Object', async () => {
@@ -81,5 +82,31 @@ describe(__filename, async () => {
 
     const d = JSON.parse(JSON.stringify(diff(a, b)));
     assert.deepEqual(patch(a, diff(a, b)), b);
+  });
+
+  it('mask', async () => {
+    const a = {
+      bar: 111,
+      a: {x: 111},
+      b: [1, {x:222}, {x: 222}],
+      c: 333,
+      f: [1,2,5,6],
+      ff: [1,2,6],
+    };
+;
+
+    const b = {
+      bar: DROP,
+      b: [DROP, KEEP],
+      ff: [1],
+    };
+
+    assert.deepEqual(
+      mask(a, b),
+      {
+        b: [undefined, {x:222}],
+        ff: [1]
+      }
+    );
   });
 });
