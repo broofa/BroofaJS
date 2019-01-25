@@ -52,7 +52,7 @@ function diff(before, after) {
   }
 };
 
-function _patch(before, _diff, isMask = false) {
+function _patch(before, _diff, diffOnly = false) {
   if (_diff === DROP) return undefined;
   if (_diff === KEEP) _diff = before;
   if (_diff == null) return _diff;
@@ -82,14 +82,19 @@ function _patch(before, _diff, isMask = false) {
 
     case 'Object': {
       let isEqual = true;
-      const values = isMask ? {} : {...before};
+      const values = diffOnly ? {} : {...before};
       for (const k in _diff) {
-        if (_diff[k] === DROP && k in values) {
-          delete values[k];
-          isEqual = false;
+        if (_diff[k] === undefined || _diff[k] === DROP) {
+          if (k in values) {
+            delete values[k];
+            isEqual = false;
+          }
         } else {
-          values[k] = _patch(before[k], _diff[k], isMask);
-          if (values[k] !== before[k]) isEqual = false;
+          const val = _patch(before[k], _diff[k], diffOnly);
+          if (val !== before[k]) {
+            values[k] = val;
+            isEqual = false;
+          }
         }
       }
 
@@ -101,7 +106,7 @@ function _patch(before, _diff, isMask = false) {
       const values = new Array(_diff.length);
       let isEqual = before.length === _diff.length;
       for (let i = 0, l = _diff.length; i < l; i++) {
-        const val = _patch(before[i], _diff[i], isMask);
+        const val = _patch(before[i], _diff[i], diffOnly);
 
         if (val !== before[i]) isEqual = false;
         values[i] = val;
