@@ -2,6 +2,7 @@ var assert = require('assert');
 var {diff, patch, mask, DROP, KEEP} = require('..');
 
 describe(__filename, async () => {
+  /*
   it('Undefined', async () => {
     assert.equal(123, patch(undefined, 123));
     assert.equal(undefined, patch(123, undefined));
@@ -40,19 +41,23 @@ describe(__filename, async () => {
 
     assert.deepEqual(a, patch(a, b));
     assert.deepEqual([undefined, 1], patch(123, [KEEP,1]));
-    assert.deepEqual({a: 1}, patch(123, {a: 1, b: DROP}));
   });
+  */
 
   it('Object', async () => {
     const a = {bar: 222, a: 'aaa'};
     const b = {bar: 222, a: 'aaa'};
     const c = {bar: 222, a: 'bbb'};
 
+    /*
     assert.equal(a, patch(a, b));
     assert.notEqual(c, patch(a, c)); // Has entries from both, so is new object
     assert.deepEqual(c, patch(a, c));
+    */
+    assert.deepEqual({a: 1}, patch({a: 1, b: 2}, {a: 1, b: DROP}));
   });
 
+  /*
   it('Compound', async () => {
     const a = {bar: 111, a: {x: 111}, b: [1, {x:222}, {x: 222}]};
     const b = {bar: 222, b: [4, {x:333}, {x: 222}],};
@@ -93,13 +98,20 @@ describe(__filename, async () => {
       f: [1,2,5,6],
       ff: [1,2,6],
     };
-;
 
     const b = {
       bar: DROP,
       b: [DROP, KEEP],
       ff: [1],
     };
+
+    assert.deepEqual(
+      mask(null, b),
+      {
+        b: [undefined, undefined],
+        ff: [1]
+      }
+    );
 
     assert.deepEqual(
       mask(a, b),
@@ -109,4 +121,5 @@ describe(__filename, async () => {
       }
     );
   });
+  */
 });

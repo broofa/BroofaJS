@@ -84,12 +84,12 @@ function _patch(before, _diff, isMask = false) {
       let isEqual = true;
       const values = isMask ? {} : {...before};
       for (const k in _diff) {
-        let val = _patch(before[k], _diff[k], isMask);
-        if (val === undefined) {
+        if (_diff[k] === DROP && k in values) {
           delete values[k];
+          isEqual = false;
         } else {
-          if (val !== before[k]) isEqual = false;
-          values[k] = val;
+          values[k] = _patch(before[k], _diff[k], isMask);
+          if (values[k] !== before[k]) isEqual = false;
         }
       }
 
