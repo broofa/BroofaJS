@@ -104,6 +104,5 @@ correctly. That said, this is not expected to be an issue in real-world
 conditions. (Both strings include a "private use" Unicode character that should
 make them fairly unique.)
 
-
 ----
 Markdown generated from [src/README_js.md](src/README_js.md) by [![RunMD Logo](http://i.imgur.com/h0FVyzU.png)](https://github.com/broofa/runmd)

@@ -65,10 +65,6 @@ assert.deepEqual(after, patched); // Passes!
 
 ## API
 
-### jsondiff.DROP & jsondiff.KEEP
-
-const DROP
-
 ### jsondiff.diff(before, after)
 
 Creates and returns a "patch object" that describes the differences between
