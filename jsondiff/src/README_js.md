@@ -23,17 +23,22 @@ The main difference between these modules is in the patch object structure. Most
 (all?) of the other modules use a structure based on or similar to RFC9602,
   which is composed of a series of operations that describe how to transform the
   target object.  In contrast, the patches in this module act as an "overlay"
-  that is copied onto the target object.  This has the following tradeoffs:
+  that is copied onto the target object.  There are tradeoffs to this, some
+  good, some bad:
 
-1. **Readability** - A structured patch is easier to read because it looks
+1. **Readability** - A structured patch is easier to read because it "looks"
    like the object it's modifying.
-2. **Size** - Operation-based patches have a lot of redundant keys and values that, again,
-making reading (and debugging) more difficult.  This can also affect network
-performance in contexts where data is not compressed (e.g. websockets)
-3. **Fault tolerance** - Operation-based patches can fail if operations are applied out of order or if the target object does not have the expected structure.
-4. **Wonky hack** - Full disclosure:  This module does require a small(?) hack to handle
-   the cases where a value is deleted or an array changes.  This may be
-   off-putting to some readers.  See comments about `DROP` and `KEEP`, below
+2. **Reordering** - Data is not "moved" in a structured patch.  It is simply
+   deleted from the old location and inserted at the new location.
+2. **Size** - Operation-based patches are more verbose (lots of duplicate keys
+   and values), except in the case where values move locations.  This may have a
+   significant impact on network bandwidth, especially for uncompressed data
+   streams.
+3. **Fault tolerance** - Operation-based patches may fail if operations are
+   applied out of order or if the target object does not have the expected
+   structure.
+4. **DROP/KEEP hack** - See comments about `DROP` and `KEEP` values in "Patch
+   Objects", below.  This may be off-putting to some readers.
 
 ## Installation
 
@@ -44,10 +49,11 @@ performance in contexts where data is not compressed (e.g. websockets)
 ```javascript --run usage
 const jsondiff = require('@broofa/jsondiff');
 
-const before = {a: 'Hello', b: 'you', c: ['dark', 'crazy'], d: 'bastard'};
-const after = {a: 'Hello', c: ['dark', 'mysterious'], d: 'world'};
+const before = {a: 'Hello', b: 'you', c: ['big', 'bad'], d: 'beast'};
+const after = {a: 'Hi', c: ['big', 'bad', 'bold'], d: 'beast'};
 
 // Create a patch
+// Note the use of DROP (-) and KEEP(+) values
 const patch = jsondiff.diff(before, after); // RESULT
 
 // Apply it to the original
@@ -59,40 +65,41 @@ assert.deepEqual(after, patched); // Passes!
 
 ## API
 
+### jsondiff.DROP & jsondiff.KEEP
+
+const DROP
+
 ### jsondiff.diff(before, after)
 
 Creates and returns a "patch object" that describes the differences between
 `before` and `after`.  This object is suitable for use in `patch()`.
 
-### jsondiff.patch(before, patchObject)
+### jsondiff.patch(before, patch)
 
-Applies `patchObject` to `before` and returns the result.
+Applies a `patch` object to `before` and returns the result.
 
 Note: Any result value that is deep-equal to it's `before` counterpart will
-reference simply reference the 'before' value.  Thus, `===` can be used to test
+reference the 'before' value directly, allowing `===` to be used as a test
 for deep equality.
-
-### jsondiff.mask(before, patchObject)
-
-Similar to patch(), but omits values not defined in `patchObject`.  I.e. Creates
-a version of `before` as "masked" by the patchObject.
 
 ### jsondiff.merge(before, after)
 
-Shorthand for `patch(before, diff(before, after))`.  Useful for
-updating an mutating an object only where values have actually changed.
+Shorthand for `jsondiff.patch(before, jsondiff.diff(before, after))`.  Useful
+for mutating an object only where values have actually changed.
 
 ## Patch Objects
 
 Patch objects are JSON objects with the same structure (schema) as the object
 they apply to.  Applying a patch is (almost) as simple as doing a deep copy of
-the patch onto the target object.  There are two minor caveats:
+the patch onto the target object.  There are two special cases:
 
-1. The special `jsondiff.DROP` ("`-`") string is used to indicate deleted
-   values
-2. A changed array is always fully-specified but, for brevity, unchanged items
-   are indicated by the special `jsondiff.KEEP` ("`+`") string
+1. `jsondiff.DROP` ("`-`") values are "dropped" (deleted or set
+   to `undefined`)
+2. `jsondiff.KEEP` ("`+`") values are "kept" (resolve to the corresponding
+   value in the target)
 
-Note: The use of `DROP` and `KEEP` is, admittedly, a hack.  If these
-exact string values appear in data outside of patch objects, `diff()` and `patch()` may not function correctly. That said, this is not expected to be an issue in real-world conditions. (Both strings include a "private use" Unicode character that should make them fairly unique.)
-
+Note: `DROP` and `KEEP` are, admittedly, a hack.  If these exact string values
+appear in data outside of patch objects, `diff()` and `patch()` may not function
+correctly. That said, this is not expected to be an issue in real-world
+conditions. (Both strings include a "private use" Unicode character that should
+make them fairly unique.)

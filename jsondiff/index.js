@@ -52,7 +52,7 @@ function diff(before, after) {
   }
 };
 
-function _patch(before, _diff, diffOnly = false) {
+function patch(before, _diff) {
   if (_diff === DROP) return undefined;
   if (_diff === KEEP) _diff = before;
   if (_diff == null) return _diff;
@@ -82,7 +82,7 @@ function _patch(before, _diff, diffOnly = false) {
 
     case 'Object': {
       let isEqual = true;
-      const values = diffOnly ? {} : {...before};
+      const values = {...before};
       for (const k in _diff) {
         if (_diff[k] === undefined || _diff[k] === DROP) {
           if (k in values) {
@@ -90,7 +90,7 @@ function _patch(before, _diff, diffOnly = false) {
             isEqual = false;
           }
         } else {
-          const val = _patch(before[k], _diff[k], diffOnly);
+          const val = patch(before[k], _diff[k]);
           if (val !== before[k]) {
             values[k] = val;
             isEqual = false;
@@ -106,7 +106,7 @@ function _patch(before, _diff, diffOnly = false) {
       const values = new Array(_diff.length);
       let isEqual = before.length === _diff.length;
       for (let i = 0, l = _diff.length; i < l; i++) {
-        const val = _patch(before[i], _diff[i], diffOnly);
+        const val = patch(before[i], _diff[i]);
 
         if (val !== before[i]) isEqual = false;
         values[i] = val;
@@ -125,7 +125,6 @@ module.exports = {
   DROP,
   KEEP,
   diff,
-  patch(before, _diff) {return _patch(before, _diff);},
-  mask(before, _diff) {return _patch(before, _diff, true);},
-  merge(before, after) {return _patch(before, diff(before, after));}
+  patch,
+  merge(before, after) {return patch(before, diff(before, after));}
 };
