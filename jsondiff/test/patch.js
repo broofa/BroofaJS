@@ -1,7 +1,13 @@
 var assert = require('assert');
-var {diff, patch, DROP, KEEP} = require('..');
+var {diff, patch, value, DROP, KEEP} = require('..');
 
 describe(__filename, async () => {
+  it('value', async () => {
+    assert.equal(undefined, value(DROP));
+    assert.equal(null, value(null));
+    assert.equal(123, value(123));
+  });
+
   it('Undefined', async () => {
     assert.equal(123, patch(undefined, 123));
     assert.equal(undefined, patch(123, undefined));

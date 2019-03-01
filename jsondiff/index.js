@@ -2,6 +2,10 @@
 const DROP = '\uE796-';  // Delete value
 const KEEP = '\uE796+';  // Keep value
 
+function value(val) {
+  return val === DROP ? undefined : val;
+}
+
 function diff(before, after) {
   if (after === undefined) return DROP;
   if (after == null) return null;
@@ -84,7 +88,7 @@ function patch(before, _diff) {
       let isEqual = true;
       const values = {...before};
       for (const k in _diff) {
-        if (_diff[k] === undefined || _diff[k] === DROP) {
+        if (value(_diff[k]) === undefined) {
           if (k in values) {
             delete values[k];
             isEqual = false;
@@ -126,5 +130,6 @@ module.exports = {
   KEEP,
   diff,
   patch,
+  value,
   merge(before, after) {return patch(before, diff(before, after));}
 };
