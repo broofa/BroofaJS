@@ -1,6 +1,6 @@
 {
   "name": "@broofa/jsondiff",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Pragmatic, intuitive diffing and patching of JSON objects",
   "main": "index.js",
   "dependencies": {},
