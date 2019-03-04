@@ -1,44 +1,49 @@
 ```javascript --hide --run usage
 runmd.onRequire = path => path.replace(/^@broofa\/\w+/, '..');
 const assert = require('assert');
+
+const before = {
+  name: 'my object',
+  description: 'it\'s an object!',
+  details: {
+    it: 'has',
+    an: 'array',
+    with: ['a', 'few', 'elements']
+  }
+};
+
+const after = {
+  name: 'updated object',
+  title: 'it\'s an object!',
+  details: {
+    it: 'has',
+    an: 'array',
+    with: ['a', 'few', 'more', 'elements', { than: 'before' }]
+  }
+};
+
+const deepPatch = [
+  {kind: 'E', path: ['name'], lhs: 'my object', rhs: 'updated object'},
+  {kind: 'D', path: ['description'], lhs: 'it\'s an object!'},
+  {kind: 'A', path: ['details', 'with'], index: 4, item: {kind: 'N', rhs: [Object]}},
+  {kind: 'A', path: ['details', 'with'], index: 3, item: {kind: 'N', rhs: 'elements'}},
+  {kind: 'E', path: ['details', 'with', 2], lhs: 'elements', rhs: 'more' },
+  {kind: 'N', path: ['title'], rhs: 'it\'s an object!'}
+];
+
+const rfcPatch = [
+  {op: 'remove', path: '/description'},
+  {op: 'add', path: '/title', value: 'it\'s an object!'},
+  {op: 'replace', path: '/name', value: 'updated object'},
+  {op: 'add', path: '/details/with/2', value: 'more'},
+  {op: 'add', path: '/details/with/-', value: {than: 'before'}}
+];
+
 ```
 
 # @broofa/jsondiff
 
-Pragmatic, intuitive diffing and patching of JSON objects
-
-## Summary of related modules
-
-There are variety of modules available that can diff and patch JSON data
-structures.   Here's a quick run down:
-
-| Module | Size | Patch format | Notes |
-|---|---|---|---|
-| **@broofa/jsondiff** | 0.7K | Overlay | Readable patches |
-| deep-diff | 3.5K | RFC9602-like | Most popular module |
-| rfc9602 | 2K | RFC9602 | See below |
-| fast-json-patch | 4K | RFC9602 | See below |
-
-The main difference between these modules is in the patch object structure. Most
-(all?) of the other modules use a structure based on or similar to RFC9602,
-  which is composed of a series of operations that describe how to transform the
-  target object.  In contrast, the patches in this module act as an "overlay"
-  that is copied onto the target object.  There are tradeoffs to this, some
-  good, some bad:
-
-1. **Readability** - A structured patch is easier to read because it "looks"
-   like the object it's modifying.
-2. **Reordering** - Data is not "moved" in a structured patch.  It is simply
-   deleted from the old location and inserted at the new location.
-2. **Size** - Operation-based patches are more verbose (lots of duplicate keys
-   and values), except in the case where values move locations.  This may have a
-   significant impact on network bandwidth, especially for uncompressed data
-   streams.
-3. **Fault tolerance** - Operation-based patches may fail if operations are
-   applied out of order or if the target object does not have the expected
-   structure.
-4. **DROP/KEEP hack** - See comments about `DROP` and `KEEP` values in "Patch
-   Objects", below.  This may be off-putting to some readers.
+Pragmatic and intuitive diff and patch functions for JSON data
 
 ## Installation
 
@@ -46,22 +51,61 @@ The main difference between these modules is in the patch object structure. Most
 
 ## Usage
 
+Require it:
+
 ```javascript --run usage
 const jsondiff = require('@broofa/jsondiff');
 
-const before = {a: 'Hello', b: 'you', c: ['big', 'bad'], d: 'beast'};
-const after = {a: 'Hi', c: ['big', 'bad', 'bold'], d: 'beast'};
-
-// Create a patch
-// Note the use of DROP (-) and KEEP(+) values
-const patch = jsondiff.diff(before, after); // RESULT
-
-// Apply it to the original
-const patched = jsondiff.patch(before, patch); // RESULT
-
-// Get the expected result
-assert.deepEqual(after, patched); // Passes!
+// ... or ES6 module style:
+// import jsondiff from '@broofa/jsondiff';
 ```
+
+Start with some `before` and `after` state:
+```javascript --run usage
+console.log(before);
+```
+
+```javascript --run usage
+console.log(after);
+```
+
+Create a patch that descibes the difference between the two:
+```javascript --run usage
+const patch = jsondiff.diff(before, after);
+console.log(patch);
+```
+*(Note the special DROP and KEEP values ("-" and "+")! These are explained in **Patch Objects**, below.)*
+
+Apply `patch` to the before state to reproduce the `after` state:
+```javascript --run usage
+const patched = jsondiff.patch(before, patch);
+console.log(patched);
+```
+
+## Why yet-another diff module?
+
+There are already several modules in this space - `deep-diff`, `rfc6902`, or `fast-json-patch`, to name a few. `deep-diff` is the most popular, however `rfc6902` is (to my mind) the most compelling because it will interoperate with other libraries that support [RFC6902 standard](https://tools.ietf.org/html/rfc6902).
+
+However ... the patch formats used by these modules tends to be cryptic and overly verbose -
+a list of the mutations needed to transform between the two states.  In the case
+of `deep-diff` you end up with this patch:
+
+```javascript --run usage
+console.log(deepPatch);
+```
+
+And for `rfc6902`:
+
+```javascript --run usage
+console.log(rfcPatch);
+```
+
+The advantage(?) of this module is that the patch structure mirrors the
+structure of the target data.  As such, it terse, readable, and resilient.
+
+That said, this module may not be for everyone.  In particular, readers may find
+the DROP and KEEP values (described below) to be... "interesting".
+
 
 ## API
 
@@ -78,10 +122,20 @@ Note: Any result value that is deep-equal to it's `before` counterpart will
 reference the 'before' value directly, allowing `===` to be used as a test
 for deep equality.
 
-### jsondiff.merge(before, after)
+### jsondiff.value(val)
 
-Shorthand for `jsondiff.patch(before, jsondiff.diff(before, after))`.  Useful
-for mutating an object only where values have actually changed.
+Normalize patch values. Currently this just converts `DROP` values to
+`undefined`, otherwise returns the value. This is useful in determining if a
+patch has a meaningful value.  E.g.
+
+```javascript --run usage
+const newPatch = {foo: jsondiff.DROP, bar: 123};
+
+newPatch.foo; // RESULT
+jsondiff.value(newPatch.foo); // RESULT
+jsondiff.value(newPatch.bar); // RESULT
+jsondiff.value(newPatch.whups); // RESULT
+```
 
 ## Patch Objects
 

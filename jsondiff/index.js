@@ -2,10 +2,24 @@
 const DROP = '\uE796-';  // Delete value
 const KEEP = '\uE796+';  // Keep value
 
+/**
+ * Normalize a patch value by converting DROP values to undefined.  This is
+ * useful for doing code such as `if (jsondiff.value(patch.someValue)) ...`
+ *
+ * @param {any} value
+ */
 function value(val) {
   return val === DROP ? undefined : val;
 }
 
+/**
+ * Generate a patch object that describes the difference between two states
+ *
+ * @param {any} before
+ * @param {any} after
+ *
+ * @returns {any} Patch object as described in the README
+ */
 function diff(before, after) {
   if (after === undefined) return DROP;
   if (after == null) return null;
@@ -56,21 +70,29 @@ function diff(before, after) {
   }
 };
 
-function patch(before, _diff) {
-  if (_diff === DROP) return undefined;
-  if (_diff === KEEP) _diff = before;
-  if (_diff == null) return _diff;
+/**
+ * Apply a patch object to some 'before' state and return the 'after' state
+ *
+ * @param {any} before
+ * @param {any} _patch
+ *
+ * @returns {any} The mutated state
+ */
+function patch(before, _patch) {
+  if (_patch === DROP) return undefined;
+  if (_patch === KEEP) _patch = before;
+  if (_patch == null) return _patch;
 
-  if (before === _diff) return before;
+  if (before === _patch) return before;
 
   const beforeType = before == null ? 'null' : before.constructor.name;
-  const type = _diff.constructor.name;
+  const type = _patch.constructor.name;
 
   if (beforeType !== type) {
     switch (type) {
       case 'Object': before = {}; break;
       case 'Array': before = []; break;
-      default: return _diff;
+      default: return _patch;
     }
   }
 
@@ -81,20 +103,20 @@ function patch(before, _diff) {
     case 'Symbol':
       break;
     case 'Date': // Not strictly JSON but useful
-      if (before.getTime() == _diff.getTime()) _diff = before;
+      if (before.getTime() == _patch.getTime()) _patch = before;
       break;
 
     case 'Object': {
       let isEqual = true;
       const values = {...before};
-      for (const k in _diff) {
-        if (value(_diff[k]) === undefined) {
+      for (const k in _patch) {
+        if (value(_patch[k]) === undefined) {
           if (k in values) {
             delete values[k];
             isEqual = false;
           }
         } else {
-          const val = patch(before[k], _diff[k]);
+          const val = patch(before[k], _patch[k]);
           if (val !== before[k]) {
             values[k] = val;
             isEqual = false;
@@ -102,27 +124,27 @@ function patch(before, _diff) {
         }
       }
 
-      _diff = isEqual ? before : values;
+      _patch = isEqual ? before : values;
       break;
     }
 
     case 'Array': {
-      const values = new Array(_diff.length);
-      let isEqual = before.length === _diff.length;
-      for (let i = 0, l = _diff.length; i < l; i++) {
-        const val = patch(before[i], _diff[i]);
+      const values = new Array(_patch.length);
+      let isEqual = before.length === _patch.length;
+      for (let i = 0, l = _patch.length; i < l; i++) {
+        const val = patch(before[i], _patch[i]);
 
         if (val !== before[i]) isEqual = false;
         values[i] = val;
       }
-      _diff = isEqual ? before : values;
+      _patch = isEqual ? before : values;
       break;
     }
 
     default:
       throw Error(`Unexpected type: ${type}`);
   }
-  return before === _diff ? before : _diff;
+  return before === _patch ? before : _patch;
 };
 
 module.exports = {
