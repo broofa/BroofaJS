@@ -8,6 +8,7 @@ describe(__filename, async () => {
   });
 
   it('Null', async () => {
+    assert.equal(KEEP, diff(null, null));
     assert.equal(123, diff(null, 123));
     assert.equal(null, diff(123, null));
   });
