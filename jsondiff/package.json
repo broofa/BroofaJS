@@ -6,7 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "mocha": "^5.2.0",
-    "runmd": "^1.0.1"
+    "runmd": "1.2.1"
   },
   "scripts": {
     "test": "mocha test/*.js",

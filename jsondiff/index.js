@@ -22,7 +22,7 @@ function value(val) {
  */
 function diff(before, after) {
   if (after === undefined) return DROP;
-  if (after == null) return null;
+  if (after === null) return before === null ? KEEP : null;
   if (before == null) return after;
 
   // Different types
