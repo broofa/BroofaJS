@@ -44,11 +44,13 @@ function diff(before, after) {
       let isEqual = true;
       const values = {};
       for (const k of new Set([...Object.keys(before), ...Object.keys(after)])) {
-        const val = diff(before[k], after[k]);
-        if (val !== KEEP) {
-          values[k] = val;
-          isEqual = false;
-        }
+        const bv = before[k], av = after[k];
+        if (av === undefined && !(k in before)) continue;
+        const val = diff(bv, av);
+        if (val === KEEP) continue;
+
+        values[k] = val;
+        isEqual = false;
       }
 
       return isEqual ? KEEP : values;

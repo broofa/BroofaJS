@@ -60,4 +60,8 @@ describe(__filename, async () => {
 
     assert.deepEqual({bar: 222, a: DROP, b: [4, {x:333}, KEEP]}, diff(a, b));
   });
+
+  it('Undefined properties', async () => {
+    assert.deepEqual(diff({}, {a: undefined}), KEEP);
+  });
 });
