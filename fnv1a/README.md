@@ -1,12 +1,8 @@
 # @broofa/fnv1a
 
-Lite, performant, robust FNV-1a (32-bit) for string hashing
+Drop-in replacment for the fnv1a module, with support for unicode and incremental hashing.
 
-Similar to [the fnv1a module](https://github.com/sindresorhus/fnv1a),
-but with the following improvements:
-
-* Handles unicode strings properly and efficiently
-* API for creating a digest that can be incrementally updated
+See [fnv1a module](https://github.com/sindresorhus/fnv1a) for details
 
 ## Installation
 
@@ -14,7 +10,7 @@ but with the following improvements:
 npm i @broofa/fnv1a
 ```
 
-## Example: One-time hashes
+## Example: One-time hash
 
 ```javascript
 const fnv1a = require('@broofa/fnv1a');
@@ -22,7 +18,7 @@ const fnv1a = require('@broofa/fnv1a');
 fnv1a('hello world'); // => 2166136261
 ```
 
-## Example: Incremental hashes
+## Example: Incremental hash
 
 ```javascript
 const fnv1a = require('@broofa/fnv1a');
