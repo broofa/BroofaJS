@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "readme": "./build/readme.js"
+    "prepare": "./build/readme.js"
   },
   "repository": {
     "type": "git",
