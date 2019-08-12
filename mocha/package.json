@@ -1,0 +1,30 @@
+{
+  "name": "@broofa/mocha",
+  "version": "1.0.0",
+  "description": "Mocha, the good parts",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "./bin/unit test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/broofa/BroofaJS.git"
+  },
+  "keywords": [
+    "mocha",
+    "chai",
+    "testing",
+    "unit",
+    "tests",
+    "async"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/broofa/BroofaJS/issues"
+  },
+  "homepage": "https://github.com/broofa/BroofaJS#readme",
+  "dependencies": {
+    "colors": "1.3.3"
+  }
+}
