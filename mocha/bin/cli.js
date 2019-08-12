@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const {spawn} = require('child_process');
+const fs = require('fs');
 
 const path = require('path');
 const colors = require('colors');
@@ -33,7 +34,7 @@ class Test {
       await done;
     } catch (err) {
       let lines = err.stack.split('\n');
-      const i = lines.findIndex(l => /\/unit:/.test(l));
+      const i = lines.findIndex(l => /\/mocha:/.test(l));
       if (i > 0) lines = lines.slice(0, i);
       lines[0] = colors.red.bold(lines[0]);
       err.stack = lines.map(l => '  ' + l).join('\n');
@@ -114,7 +115,7 @@ async function runFile(filename, stats) {
   suites = [new Suite(TOP)];
 
   try {
-    require(path.join(process.cwd(), filename));
+    require(filename);
     await suites[0].run(stats);
   } catch (err) {
     err.message = `${filename}\n${err.message}`;
@@ -122,12 +123,39 @@ async function runFile(filename, stats) {
   }
 }
 
+function flattenPaths(name, accum = []) {
+  let stat = fs.lstatSync(name);
+
+  if (stat.isFile()) {
+    // Run the file
+    accum.push(name);
+  } else if (stat.isDirectory()) {
+    // Run each file in the directory
+    let entries = fs.readdirSync(name)
+      .filter(e => /\.js$/.test(e))
+      .map(e => path.join(name, e));
+
+    for (const entry of entries) {
+      const estat = fs.lstatSync(entry);
+      if (estat.isDirectory()) continue;
+      if (!estat.isFile()) continue;
+
+      accum.push(entry);
+    };
+  }
+
+  return accum;
+}
+
 async function main() {
   const stats = {nTests: 0, nFailed: 0};
-  const args = process.argv.slice(process.argv.indexOf(__filename) + 1);
+  const args = process.argv.slice(2);
 
-  for (const filename of args) {
-    await runFile(filename, stats);
+  const paths = args.reduce((acc, p) => flattenPaths(path.resolve(process.cwd(), p), acc), []);
+
+  for (let filepath of paths) {
+    let stat;
+    await runFile(filepath, stats);
   }
 
   if (!stats.nFailed) {
