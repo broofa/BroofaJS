@@ -1,0 +1,30 @@
+{
+  "name": "simplur",
+  "version": "1.0.4",
+  "description": "Simple, versatile string pluralization",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "npm test",
+    "test": "mocha src/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/broofa/BroofaJS/tree/master/simplur"
+  },
+  "keywords": [
+    "pluralize",
+    "pluralise",
+    "plural",
+    "plur",
+    "inflection",
+    "inflector"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "6.2.2"
+  },
+  "dependencies": {
+    "runmd": "1.2.1"
+  }
+}
