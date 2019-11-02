@@ -1,6 +1,6 @@
 {
   "name": "simplur",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Simple, versatile string pluralization",
   "main": "index.js",
   "scripts": {
@@ -22,9 +22,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "6.2.2"
-  },
-  "dependencies": {
     "runmd": "1.2.1"
   }
 }
