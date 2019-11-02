@@ -48,8 +48,8 @@ It also works with multiple injected values (substitution uses preceeding
     expression value)
 
 ```javascript
-simplur`There [is|are] ${1} fox[|es] and ${4} octop[us|i]`; // ⇨ 'There is 1 fox and 4 octopi'
-simplur`There [is|are] ${4} fox[|es] and ${1} octop[us|i]`; // ⇨ 'There are 4 foxes and 1 octopus'
+simplur`There [is|are] ${1} fox[|es] and ${4} octopus[|es]`; // ⇨ 'There is 1 fox and 4 octopuses'
+simplur`There [is|are] ${4} fox[|es] and ${1} octopus[|es]`; // ⇨ 'There are 4 foxes and 1 octopus'
 
 ```
 
