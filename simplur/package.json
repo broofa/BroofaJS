@@ -1,10 +1,10 @@
 {
   "name": "simplur",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Simple, versatile string pluralization",
   "main": "index.js",
   "scripts": {
-    "prepare": "npm test",
+    "prepare": "npm test && runmd --output=README.md src/README_js.md",
     "test": "mocha src/test.js"
   },
   "repository": {

@@ -9,7 +9,7 @@ Simple, versatile string pluralization
 ## Installation
 
 ```
-npm i /simplur
+npm i simplur
 ```
 
 Use CommonJS or ESM to import

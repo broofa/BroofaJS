@@ -1,6 +1,6 @@
 {
   "name": "@broofa/mocha",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mocha, the good parts",
   "main": "lib/index.js",
   "scripts": {
