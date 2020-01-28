@@ -14,8 +14,10 @@ describe(__filename, async () => {
   });
 
   it('Boolean', async () => {
-    assert.equal(true, diff(true, true));
+    assert.equal(KEEP, diff(true, true));
+    assert.equal(KEEP, diff(false, false));
     assert.equal(false, diff(true, false));
+    assert.equal(true, diff(false, true));
   });
 
   it('Number', async () => {

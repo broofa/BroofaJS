@@ -31,8 +31,6 @@ function diff(before, after) {
   let type = after.constructor.name;
   switch (type) {
     case 'Boolean':
-      return after;
-
     case 'Number':
     case 'String':
       return before === after ? KEEP : after;
