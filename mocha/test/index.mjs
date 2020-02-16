@@ -1,6 +1,8 @@
+import foo from './foo';
+
 before(() => {});
 
-it('Test 0a', () => {});
+it('Top test', () => {});
 
 describe('Suite 1', () => {
   it('Test 1a', () => {
@@ -21,4 +23,4 @@ describe('Suite 2', () => {
   it('Test 2a', () => {});
 });
 
-it('Top 0b', () => {});
+it('More Top-level', () => {});
