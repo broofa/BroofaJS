@@ -1,24 +1,31 @@
-before(() => {});
+it('Scrobble', () => {});
 
-it('Test 0a', () => {});
+describe('All the things', () => {
+  it('Frabjous day', () => {});
 
-describe('Suite 1', () => {
-  it('Test 1a', () => {
-  });
-
-  it('Test 1b', () => {
+  it('Lorum Ipsum', () => {
     throw Error('Should throw');
   });
 
-  describe('Suite 1.1', () => {
-    it('Test 1.1a', () => {});
+  it('Dolor wat', () => {
+    throw Error('No, really... just throw');
   });
 
-  it('Test 1c', () => {});
+  describe('Some of the things', () => {
+    it('Turkey shoot', () => {});
+  });
+
+  for (let i = 0; i < 5; i++) {
+    it(`Plunko ${i}`, () => {});
+  }
 });
 
-describe('Suite 2', () => {
-  it('Test 2a', () => {});
+describe('None of it', () => {
+  it('Arcturux', () => {});
 });
 
-it('Top 0b', () => {});
+it('Sloooooooow', () => {
+  return new Promise(resolve => setTimeout(resolve, 4000));
+});
+
+it('Netherworld', () => {});

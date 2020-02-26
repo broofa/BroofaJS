@@ -3,6 +3,9 @@
   "version": "1.0.1",
   "description": "Mocha, the good parts",
   "main": "lib/index.js",
+  "exports": {
+    ".": "./index.cjs"
+  },
   "scripts": {
     "test": "./cli.js test/index.js"
   },
@@ -14,12 +17,11 @@
     "url": "git+https://github.com/broofa/BroofaJS.git"
   },
   "keywords": [
-    "mocha",
-    "chai",
+    "async",
+    "es6",
     "testing",
-    "unit",
     "tests",
-    "async"
+    "unit"
   ],
   "author": "",
   "license": "ISC",

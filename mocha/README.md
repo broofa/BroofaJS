@@ -27,7 +27,13 @@ npm i @broofa/mocha
 $ mocha test/foo.js test/bar.js
 ```
 
-### `debugger` behavior
+### ES6 module support
 
-@broofa/mocha automatically triggers a `debugger` statement before each test
-function when run with `--inspect-brk`.
+Tests with the `.mjs` extension will be loaded as ES6 modules.  These tests must
+explicitely import mocha functions as follows:
+
+```
+import {describe, it, before, beforeEach, after, afterEach} from 'mocha';
+```
+
+## Debugging

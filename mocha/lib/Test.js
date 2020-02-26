@@ -1,23 +1,33 @@
 const chalk = require('chalk');
+const Runnable = require('./Runnable');
 
-module.exports = class Test {
-  constructor(name, testFunc) {
-    this.name = name;
+module.exports = class Test extends Runnable {
+  constructor(parent, name, testFunc) {
+    super(parent, name);
     this.testFunc = testFunc;
   }
 
   async run(suite) {
-    console.log(`- ${this.name}`);
+    console.log(this.title);
 
-    await suite.runHook('beforeEach');
+    await this.parent.runHook('beforeEach');
 
     try {
-      await this.testFunc();
+      await new Promise((resolve, reject) => {
+        const p = this.testFunc();
+        if (!p || !p.then) return resolve(p);
+
+        const timer = setTimeout(() => reject(Error('timed out')), 3000);
+        p.then(val => {
+          clearTimeout(timer);
+          resolve(val);
+        });
+      });
     } catch (err) {
       this.error = err;
-      console.log(chalk.red(err.message));
+      console.log(this.id.replace(/./g, ' '), chalk.red(`ERROR: ${err.message}`));
     }
 
-    await suite.runHook('afterEach');
+    await this.parent.runHook('afterEach');
   }
 };

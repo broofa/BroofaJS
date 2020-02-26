@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const Suite = require('./lib/Suite');
+const {Suite} = require('./lib/Suite');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
@@ -10,24 +10,23 @@ const {spawn} = require('child_process');
 let breakBeforeTest = false;
 
 async function runFile(filename) {
-  console.log(chalk.inverse('\n' + filename));
-  // Each file starts with a clean require cache
-  for (const k in require.cache) delete require.cache[k];
+  const suiteName = filename.replace(process.cwd() + '/', '');
+  console.log(chalk.bold.underline(suiteName));
 
-  suite = new Suite();
+  suite = new Suite(null, suiteName);
   const deactivate = suite.activate();
 
+  // Purge require() cache
+  for (const k in require.cache) delete require.cache[k];
+
   try {
-    if (/\.mjs$/.test(filename)) {
-      import(filename);
-    } else {
-      require(filename);
-    }
+    require(filename);
+    await suite.run();
   } finally {
     deactivate();
   }
 
-  await suite.run();
+  return suite;
 }
 
 /**
@@ -58,23 +57,34 @@ function flattenPaths(name, accum = []) {
 }
 
 async function main() {
-  const stats = {nTests: 0, nFailed: 0};
   const args = process.argv.slice(2);
 
   const paths = args.reduce((acc, p) => flattenPaths(path.resolve(process.cwd(), p), acc), []);
 
+  const allSuites = new Suite();
+
   for (const filepath of paths) {
-    await runFile(filepath, stats);
+    allSuites.add(await runFile(filepath));
   }
 
-  if (!stats.nFailed) {
-    console.log(chalk.green('\nAll tests passed! \u{1f389}'));
+  const errors = allSuites.getErrors();
+
+  if (!errors.length) {
+    console.log(chalk.green('All tests passed! \u{1f389}'));
   } else {
-    console.log(chalk.red(`\n${stats.nFailed} failures\u{1f61e}`));
+    console.log(chalk.red.inverse(`${errors.length} failures\u{1f61e}`));
+
+    errors.forEach(test => {
+      console.log()
+      console.log(chalk.red(`${test.title}`));
+      console.log(test.error);
+    });
+
     process.exit(1);
   }
 }
 
+console.log(process.argv);
 const nodeArgs = process.argv.filter(arg => arg.startsWith('-'));
 
 if (nodeArgs.length) {

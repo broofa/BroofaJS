@@ -1,61 +1,16 @@
 const chalk = require('chalk');
+const Runnable = require('./Runnable');
 const Test = require('./Test');
-
-const TOP_SUITE = Symbol('TOP Suite');
+const util = require('util');
 
 let currentSuite;
 
-module.exports = class Suite {
-  static before(cb) {
-    currentSuite.before = cb;
-  }
-
-  static beforeEach(cb) {
-    currentSuite.beforeEach = cb;
-  }
-
-  static after(cb) {
-    currentSuite.after = cb;
-  }
-
-  static afterEach(cb) {
-    currentSuite.afterEach = cb;
-  }
-
-  static async describe(name, suiteFunc) {
-    const suite = new Suite(name);
-
-    currentSuite.add(suite);
-
-    const deactivate = suite.activate();
-
-    try {
-      // Invoke suite setup function
-      const p = suiteFunc();
-      if (p && p.then) await(p);
-    } finally {
-      deactivate();
-    }
-  }
-
-  static async it(...args) {
-    currentSuite.add(new Test(...args));
-  }
-
+class Suite extends Runnable {
   _hooks = {};
-  _runnables = [];
+  runnables = [];
 
-  constructor(name = TOP_SUITE) {
-    this.name = name;
-  }
-
-  activate() {
-    const previousSuite = currentSuite;
-
-    currentSuite = this;
-
-    // Restore function
-    return function() {currentSuite = previousSuite};
+  constructor(parent = null, name = null) {
+    super(parent, name);
   }
 
   set before(v) {this._hooks.before = v;}
@@ -70,47 +25,55 @@ module.exports = class Suite {
   }
 
   add(runnable) {
-    this._runnables.push(runnable);
+    this.runnables.push(runnable);
   }
 
   async run() {
-    if (this.name != TOP_SUITE) console.log(`\n${chalk.bold.underline(this.name)}`);
+    if (this.parent) console.log(`${chalk.bold(this.title)}`);
 
     await this.runHook('before');
 
-    let last;
-    for (const runnable of this._runnables) {
-      if (runnable instanceof Test) {
-        if (last instanceof Suite && this.name != TOP_SUITE) {
-          console.log(`\n${chalk.bold.underline(this.name)} (continued)`);
-        }
+    const deactivate = this.activate();
+    try {
+      for (const runnable of this.runnables) {
+        await runnable.run(this);
       }
+      console.log();
 
-      await runnable.run(this);
+    } finally {
+      await this.runHook('after');
+      deactivate();
+    }
+  }
 
-      last = runnable;
+  getErrors(errors = []) {
+    for (const runnable of this.runnables) {
+      if (runnable instanceof Test) {
+        if (runnable.error) errors.push(runnable);
+      } else {
+        runnable.getErrors(errors);
+      }
     }
 
-    await this.runHook('after');
+    return errors;
   }
 
   activate() {
-    const currentSuite = this;
+    const self = this;
 
-    const previousGlobal = {...global};
+    const before = {...global};
 
-    // Suite-module globals
-    Object.assign(global, {
-      before(cb) {currentSuite.before = cb;},
-      beforeEach(cb) {currentSuite.beforeEach = cb;},
+    const GLOBALS = {
+      before(cb) {self.before = cb;},
+      beforeEach(cb) {self.beforeEach = cb;},
 
-      after(cb) {currentSuite.after = cb;},
-      afterEach(cb) {currentSuite.afterEach = cb;},
+      after(cb) {self.after = cb;},
+      afterEach(cb) {self.afterEach = cb;},
 
       async describe(name, suiteFunc) {
-        const suite = new Suite(name);
+        const suite = new Suite(self, name);
 
-        currentSuite.add(suite);
+        self.add(suite);
 
         const deactivate = suite.activate();
 
@@ -127,15 +90,28 @@ module.exports = class Suite {
       },
 
       async it(...args) {
-        currentSuite.add(new Test(...args));
+        self.add(new Test(self, ...args));
+      },
+
+      log(...args) {
+        const out = util.inspect(...args).replace(/^/mg, '  ');
+        console.log(chalk.dim(out));
       }
-    });
+    };
+
+    // Suite-module globals
+    Object.assign(global, GLOBALS);
 
     return () => {
-      Object.assign(global, previousGlobal);
       for (const k of Object.keys(global)) {
-        if (!(k in previousGlobal)) delete global[k];
+        if (k in before) {
+          global[k] = before[k];
+        } else {
+          delete global[k];
+        }
       }
     };
   }
 };
+
+exports.Suite = Suite;
