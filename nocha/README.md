@@ -11,9 +11,10 @@ This is minimal implementation of Mocha's BDD API.  BDD-based tests (tests that
 use `describe()`, `it()`, `before()`, `beforeEach()`, etc) should work with no
 modification.
 
-The log output is slightly different than the original `mocha` to make logging
-more intuitive.  All console and error output is immediately written to the
-console.
+The log output is slightly different than the original `mocha` to improve
+readability and error reporting.
+
+Also, this adds a `--break` feature (see below) that allows for setting on-the-fly debugging breakpoints.
 
 ## Installation
 
