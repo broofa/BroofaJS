@@ -1,16 +1,16 @@
 {
   "name": "persistentmap",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An ES6 Map with Redis-inspired persistence and durability.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test.js"
+    "test": "nocha test.js"
   },
   "author": "Robert Kieffer <robert@broofa.com>",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
-    "@broofa/mocha": "1.0.1"
+    "nocha": "1.0.2"
   },
   "repository": {
     "type": "git",

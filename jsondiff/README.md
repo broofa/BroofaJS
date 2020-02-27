@@ -26,20 +26,25 @@ Start with some `before` and `after` state:
 ```javascript
 console.log(before);
 
-⇒ { name: 'my object',
-⇒   description: 'it\'s an object!',
-⇒   details: { it: 'has', an: 'array', with: [ 'a', 'few', 'elements' ] } }
+⇒ {
+⇒   name: 'my object',
+⇒   description: "it's an object!",
+⇒   details: { it: 'has', an: 'array', with: [ 'a', 'few', 'elements' ] }
+⇒ }
 ```
 
 ```javascript
 console.log(after);
 
-⇒ { name: 'updated object',
-⇒   title: 'it\'s an object!',
-⇒   details: 
-⇒    { it: 'has',
-⇒      an: 'array',
-⇒      with: [ 'a', 'few', 'more', 'elements', { than: 'before' } ] } }
+⇒ {
+⇒   name: 'updated object',
+⇒   title: "it's an object!",
+⇒   details: {
+⇒     it: 'has',
+⇒     an: 'array',
+⇒     with: [ 'a', 'few', 'more', 'elements', { than: 'before' } ]
+⇒   }
+⇒ }
 ```
 
 Create a patch that descibes the difference between the two:
@@ -47,11 +52,12 @@ Create a patch that descibes the difference between the two:
 const patch = jsondiff.diff(before, after);
 console.log(patch);
 
-⇒ { name: 'updated object',
+⇒ {
+⇒   name: 'updated object',
 ⇒   description: '-',
-⇒   details: 
-⇒    { with: [ '+', '+', 'more', 'elements', { than: 'before' } ] },
-⇒   title: 'it\'s an object!' }
+⇒   details: { with: [ '+', '+', 'more', 'elements', { than: 'before' } ] },
+⇒   title: "it's an object!"
+⇒ }
 ```
 *(Note the special DROP and KEEP values ("-" and "+")! These are explained in **Patch Objects**, below.)*
 
@@ -60,12 +66,15 @@ Apply `patch` to the before state to reproduce the `after` state:
 const patched = jsondiff.patch(before, patch);
 console.log(patched);
 
-⇒ { name: 'updated object',
-⇒   details: 
-⇒    { it: 'has',
-⇒      an: 'array',
-⇒      with: [ 'a', 'few', 'more', 'elements', { than: 'before' } ] },
-⇒   title: 'it\'s an object!' }
+⇒ {
+⇒   name: 'updated object',
+⇒   details: {
+⇒     it: 'has',
+⇒     an: 'array',
+⇒     with: [ 'a', 'few', 'more', 'elements', { than: 'before' } ]
+⇒   },
+⇒   title: "it's an object!"
+⇒ }
 ```
 
 ## Why yet-another diff module?
@@ -79,24 +88,34 @@ of `deep-diff` you end up with this patch:
 ```javascript
 console.log(deepPatch);
 
-⇒ [ { kind: 'E',
+⇒ [
+⇒   {
+⇒     kind: 'E',
 ⇒     path: [ 'name' ],
 ⇒     lhs: 'my object',
-⇒     rhs: 'updated object' },
-⇒   { kind: 'D', path: [ 'description' ], lhs: 'it\'s an object!' },
-⇒   { kind: 'A',
+⇒     rhs: 'updated object'
+⇒   },
+⇒   { kind: 'D', path: [ 'description' ], lhs: "it's an object!" },
+⇒   {
+⇒     kind: 'A',
 ⇒     path: [ 'details', 'with' ],
 ⇒     index: 4,
-⇒     item: { kind: 'N', rhs: [ [Function: Object] ] } },
-⇒   { kind: 'A',
+⇒     item: { kind: 'N', rhs: [ [Function: Object] ] }
+⇒   },
+⇒   {
+⇒     kind: 'A',
 ⇒     path: [ 'details', 'with' ],
 ⇒     index: 3,
-⇒     item: { kind: 'N', rhs: 'elements' } },
-⇒   { kind: 'E',
+⇒     item: { kind: 'N', rhs: 'elements' }
+⇒   },
+⇒   {
+⇒     kind: 'E',
 ⇒     path: [ 'details', 'with', 2 ],
 ⇒     lhs: 'elements',
-⇒     rhs: 'more' },
-⇒   { kind: 'N', path: [ 'title' ], rhs: 'it\'s an object!' } ]
+⇒     rhs: 'more'
+⇒   },
+⇒   { kind: 'N', path: [ 'title' ], rhs: "it's an object!" }
+⇒ ]
 ```
 
 And for `rfc6902`:
@@ -104,11 +123,13 @@ And for `rfc6902`:
 ```javascript
 console.log(rfcPatch);
 
-⇒ [ { op: 'remove', path: '/description' },
-⇒   { op: 'add', path: '/title', value: 'it\'s an object!' },
+⇒ [
+⇒   { op: 'remove', path: '/description' },
+⇒   { op: 'add', path: '/title', value: "it's an object!" },
 ⇒   { op: 'replace', path: '/name', value: 'updated object' },
 ⇒   { op: 'add', path: '/details/with/2', value: 'more' },
-⇒   { op: 'add', path: '/details/with/-', value: { than: 'before' } } ]
+⇒   { op: 'add', path: '/details/with/-', value: { than: 'before' } }
+⇒ ]
 ```
 
 The advantage(?) of this module is that the patch structure mirrors the

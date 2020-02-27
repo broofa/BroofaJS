@@ -50,7 +50,10 @@ module.exports = class PersistentMap extends Map {
     if (key === null) {
       // Full snapshot - replace map with val
       super.clear();
-      for (const args of Object.entries(val)) super.set(...args);
+
+      if (val != null) {
+        for (const args of Object.entries(val)) super.set(...args);
+      }
     } else if (val !== undefined) {
       // Set a value
       super.set(key, val);
@@ -152,13 +155,15 @@ module.exports = class PersistentMap extends Map {
     super.clear();
     lines.forEach((line, i) => {
       if (!line) return;
+      let action;
       try {
-        this._exec(...JSON.parse(line));
+        action = JSON.parse(line);
       } catch (err) {
-        // Warn on action parse error, but continue on since there's not
-        // much to be done about thisk
         console.warn(`PersistentMap load() error @ line ${i + 1}: ${err.message}`, line);
+        return;
       }
+
+      this._exec(...action);
     });
 
     // Compact file

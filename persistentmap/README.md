@@ -5,7 +5,7 @@ An ES6 Map with Redis-inspired persistence and durability.
 Features:
   * ES6 Map api
   * Performant (100K's writes/second sustained)
-  * Append-only file store for preformance and durability
+  * Append-only, atomic file operations for performance and reliability
   * Configurable, capped file size
 
 Note: This API has not been designed or tested for cases involving large amounts
@@ -18,8 +18,8 @@ Install:
 
 ```
 npm install persistentmap
-
 ```
+
 Use:
 ```
 // Create a map (and tell it where to save state on disk)
@@ -41,12 +41,15 @@ await pm.set('foo', 345);
 
 ## API
 
-### new Map(filepath, options)
+PersistentMap extends the ES6 Map class and, thus, supports the [full ES6 Map
+API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).  Additionally, it provides the following API:
+
+### new PersistentMap(filepath, options)
 
 Create
 
 * `filepath` - Location at which to write append-only file
-* `options.maxFileSize` - File size at which to auto-compact. Default = 1000000.
+* `options.maxFileSize` - File size (in bytes) at which to auto-compact. Default = 1,000,000.
 
 ### async load()
 
