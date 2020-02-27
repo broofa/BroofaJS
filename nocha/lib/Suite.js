@@ -2,6 +2,7 @@ const chalk = require('chalk');
 const Runnable = require('./Runnable');
 const Test = require('./Test');
 const util = require('util');
+const {argv} = require('yargs');
 
 let currentSuite;
 
@@ -30,6 +31,8 @@ class Suite extends Runnable {
 
   async run() {
     if (this.parent) console.log(`${chalk.bold(this.title)}`);
+
+    if (argv.break && argv.break == this.id) debugger;
 
     await this.runHook('before');
 

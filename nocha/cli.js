@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const {argv} = require('yargs');
 const {spawn} = require('child_process');
+const inspector = require('inspector');
 
 let breakBeforeTest = false;
 
@@ -57,9 +58,7 @@ function flattenPaths(name, accum = []) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-
-  const paths = args.reduce((acc, p) => flattenPaths(path.resolve(process.cwd(), p), acc), []);
+  const paths = argv._.reduce((acc, p) => flattenPaths(path.resolve(process.cwd(), p), acc), []);
 
   const allSuites = new Suite();
 
@@ -84,25 +83,8 @@ async function main() {
   }
 }
 
-console.log(process.argv);
-const nodeArgs = process.argv.filter(arg => arg.startsWith('-'));
+// If a breakpoint is requested, wait for debugger to connect
+if (argv.break) inspector.open(undefined, undefined, true);
 
-if (nodeArgs.length) {
-  // We have flags that need to be passed to node, so launch node with those
-  // flags set properly
-  const unitArgs = process.argv.filter(arg => !arg.startsWith('-'));
-  unitArgs.shift(); // Remove exec path
-
-  // Break before tests?
-  // if (nodeArgs.includes('--inspect-brk')) unitArgs.unshift('-b');
-
-  const proc = spawn(process.execPath, [...nodeArgs, ...unitArgs], {stdio: 'inherit'});
-
-  proc.on('error', console.error);
-  proc.on('exit', (code, sig) => process.exit(code));
-} else {
-  breakBeforeTest = nodeArgs.includes('-b');
-
-  // Looks good.   Go ahead and run the tests
-  main();
-}
+// Looks good.   Go ahead and run the tests
+main();

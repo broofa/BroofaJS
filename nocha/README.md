@@ -27,7 +27,15 @@ npm i nocha
 $ nocha test/foo.js test/bar.js
 ```
 
-### ES6 module support
+## flags
+
+### --break=[suite or task number]
+
+Wait for debugger to connect, then break immediately prior to running the
+designated suite or task number.  You can find the number, preceeeding each
+suite or task in the console output.
+
+## ES6 module support
 
 Tests with the `.mjs` extension will be loaded as ES6 modules.  These tests must
 explicitely import mocha functions as follows:
