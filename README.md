@@ -8,8 +8,9 @@ often free from dependencies on other modules.  License is typically ISC, but se
 | --- | --- |
 | [@broofa/asyncconcat](asyncconcat) | Async method to concatenate a stream into a buffer |
 | [@broofa/asyncproxy](asyncproxy) | A simple, intuitive solution for converting node-style APIs to Promises. |
-| [@broofa/jsondiff](jsondiff) | Pragmatic, intuitive diffing and patching of JSON objects |
 | [@broofa/fnv1a](fnv1a) | A robust, tiny, string hash implementation for JS, based on FNV-1a |
+| [@broofa/jsondiff](jsondiff) | Pragmatic, intuitive diffing and patching of JSON objects |
 | [@broofa/mocha](mocha) | Mocha, the good parts |
-| [@broofa/stringlang](stringlang) | Count string characters by unicode block |
+| [persistentmap](persistentmap) | An ES6 Map with Redis-inspired persistence and durability. |
 | [simplur](simplur) | Simple, versatile string pluralization |
+| [@broofa/stringlang](stringlang) | Count string characters by unicode block |
