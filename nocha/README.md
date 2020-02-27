@@ -1,4 +1,4 @@
-# @broofa/mocha
+# nocha
 
 A lightweight, drop-in alternative to `mocha`
 
@@ -18,13 +18,13 @@ console.
 ## Installation
 
 ```
-npm i @broofa/mocha
+npm i nocha
 ```
 
 ## Usage
 
 ```
-$ mocha test/foo.js test/bar.js
+$ nocha test/foo.js test/bar.js
 ```
 
 ### ES6 module support
@@ -33,7 +33,7 @@ Tests with the `.mjs` extension will be loaded as ES6 modules.  These tests must
 explicitely import mocha functions as follows:
 
 ```
-import {describe, it, before, beforeEach, after, afterEach} from 'mocha';
+import {describe, it, before, beforeEach, after, afterEach} from 'nocha';
 ```
 
 ## Debugging

@@ -1,7 +1,7 @@
 {
-  "name": "@broofa/mocha",
+  "name": "nocha",
   "version": "1.0.1",
-  "description": "Mocha, the good parts",
+  "description": "A mocha-inspired test utility",
   "main": "lib/index.js",
   "exports": {
     ".": "./index.cjs"
@@ -10,7 +10,7 @@
     "test": "./cli.js test/index.js"
   },
   "bin": {
-    "mocha": "./cli.js"
+    "nocha": "./cli.js"
   },
   "repository": {
     "type": "git",
