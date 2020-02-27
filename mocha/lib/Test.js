@@ -18,10 +18,15 @@ module.exports = class Test extends Runnable {
         if (!p || !p.then) return resolve(p);
 
         const timer = setTimeout(() => reject(Error('timed out')), 3000);
-        p.then(val => {
-          clearTimeout(timer);
-          resolve(val);
-        });
+        p
+          .then(val => {
+            clearTimeout(timer);
+            resolve(val);
+          })
+          .catch(err => {
+            clearTimeout(timer);
+            reject(err);
+          });
       });
     } catch (err) {
       this.error = err;
