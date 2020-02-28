@@ -1,6 +1,8 @@
 const {promises: fs} = require('fs');
 const path = require('path');
 
+const CLEAR = Symbol('clear file');
+
 /**
  * An ES6 Map, lazily persisted to an append-only transaction file, so it's
  * state can be restored, even if the process terminates unexpectedly.
@@ -13,19 +15,18 @@ const path = require('path');
  * describing actions to apply to the map.  Each action is a 1 or 2 element
  * array as follows:
  *
- *   [null] = Clear map
- *   [null, {Object values}] = clear map and set all values
  *   ["key"] = Delete "key" from map
  *   ["key", {JSON value}] = Set "key" to value
  *
  * File size is capped at [approximately] `options.maxFileSize.  If the
- * transaction file
- * exceeds this size at the time of a write action, the file is reset and the
- * action is converted to a full-state snapshot.  I.e. write actions are
- * generally very fast (on the order of 100K's/second or even 1M's/second) but
- * may occasionally take as long as needed to write the full state of the map.
+ * transaction file exceeds this size at the time of a write action, a new file
+ * is started with the current map state .  I.e. write actions are generally
+ * very fast (on the order of 100K's/second or even 1M's/second) but may
+ * occasionally take as long as needed to write the full state of the map.
  */
 module.exports = class PersistentMap extends Map {
+  _nBytes = 0;
+
   /**
    * @param {String} name
    * @param {Object} [options]
@@ -38,23 +39,18 @@ module.exports = class PersistentMap extends Map {
     filepath = path.resolve(filepath);
 
     this.options = Object.assign({maxFileSize: 1e6}, options);
-    this.nBytes = 0;
     this.filepath = filepath;
   }
 
   /**
    * Apply a write action to the map
-   * @param {String|null} key to set.  If null, updates whole map
+   * @param {String|CLEAR} key to set.  If CLEAR, clears the map
    * @param {*} val to set
    */
   _exec(key, val) {
-    if (key === null) {
-      // Full snapshot - replace map with val
+    if (key === CLEAR) {
+      // Clear map
       super.clear();
-
-      if (val != null) {
-        for (const args of Object.entries(val)) super.set(...args);
-      }
     } else if (val !== undefined) {
       // Set a value
       super.set(key, val);
@@ -73,21 +69,20 @@ module.exports = class PersistentMap extends Map {
     // Loop because items may get pushed onto queue while we're writing
     while (this._queue) {
       let q = this._queue;
+      const {resolve, reject} = q;
       delete this._queue;
-
       this._writing = true;
       try {
-        // Get index of last full-state snapshot action.  If there is one, drop
-        // any preceeding actions (they'll be negated by the snapshot)
-        const lastSnapshotIndex = q.reduce ((a, b, i) => b[0] == null ? i : a, -1);
-        if (lastSnapshotIndex > 0) q = q.slice(lastSnapshotIndex);
+        // Slice to most recent CLEAR action
+        const clearIndex = q.reduce ((a, b, i) => b[0] === CLEAR ? i : a, -1);
+        if (clearIndex >= 0) q = q.slice(clearIndex + 1);
 
         // Compose JSON to write
-        const json = q.map(q => JSON.stringify(q)).join('\n') + '\n';
+        const json = q.map(action => JSON.stringify(action)).join('\n') + '\n';
 
-        if (lastSnapshotIndex >= 0) {
-          // Snapshots negate all prior actions, so reset the file
-          this.nBytes = 0;
+        if (clearIndex >= 0) {
+          // If CLEAR, start with new file
+          this._nBytes = 0;
           const tmpFile = `${this.filepath}.tmp`;
           await fs.writeFile(tmpFile, json);
           await fs.rename(tmpFile, this.filepath);
@@ -95,10 +90,10 @@ module.exports = class PersistentMap extends Map {
           await fs.appendFile(this.filepath, json);
         }
 
-        this.nBytes += json.length;
-        q._resolve();
+        this._nBytes += json.length;
+        resolve();
       } catch (err) {
-        q._reject(err);
+        reject(err);
       } finally {
         this._writing = false;
       }
@@ -109,29 +104,42 @@ module.exports = class PersistentMap extends Map {
    * Push action onto the write queue
    */
   _push(...action) {
-    const {maxFileSize} = this.options;
-    if (maxFileSize != null && this.nBytes >= maxFileSize) {
-      this.nBytes = 0;
-      action = [null];
+    // If empty action, just return queue promise
+    if (action.length == 0) {
+      return this._queue ? this._queue.promise : undefined;
     }
 
-    // Snapshots reset the queue
-    if (action[0] == null && this._queue) this._queue.length = 0;
+    // Auto-compact
+    const {maxFileSize} = this.options;
+    if (maxFileSize != null && this._nBytes >= maxFileSize) {
+      this._nBytes = 0;
+      return this.compact();
+    }
 
+    // Create queue & promise if needed
     if (!this._queue) {
-      // Create queue (and promise to resolve once the queue has been written)
       const q = this._queue = [];
-      q._promise = new Promise((res, rej) => {
-        q._resolve = res;
-        q._reject = rej;
+      q.promise = new Promise((res, rej) => {
+        q.resolve = res;
+        q.reject = rej;
       });
     }
 
-    const writePromise = this._queue._promise;
+    const [key, val] = action;
 
-    // "Flush" actions (action.length == 0) are no-ops.  They just provide a way
-    // to access the current queue promise, and can otherwise be ignored.
-    if (action.length) this._queue.push(action);
+    // Null key clears the map
+    if (key === CLEAR) {
+      this._queue.length = 0;
+      this._queue.push([CLEAR]); // Clear
+
+      // Special case - compact() passes current entries in val
+      if (val && val[Symbol.iterator]) this._queue.push(...val);
+    } else {
+      this._queue.push(action);
+    }
+
+    // Grab promise here in case _write() clears the queue
+    const writePromise = this._queue.promise;
 
     // Make sure write loop runs
     this._write();
@@ -148,7 +156,7 @@ module.exports = class PersistentMap extends Map {
     let lines;
     try {
       const json = await fs.readFile(this.filepath, 'utf8');
-      this.nBytes = json.length;
+      this._nBytes = json.length;
       lines = json.split('\n');
     } catch (err) {
       if (err.code != 'ENOENT') throw err;
@@ -175,13 +183,10 @@ module.exports = class PersistentMap extends Map {
   }
 
   /**
-   * Compact the transaction file by starting a new file, initialized with the
-   * current map state.
-   *
-   * @returns {Promise} Resolves once all queued actions have been saved
+   * Clears transaction file and initializes it with the current map state
    */
   compact() {
-    return this._push(null, Object.fromEntries(this.entries()));
+    return this._push(CLEAR, this.entries());
   }
 
   /**
@@ -196,18 +201,17 @@ module.exports = class PersistentMap extends Map {
   //
 
   clear() {
-    super.clear();
-    return this._push(null);
-  }
-
-  set(key, val) {
-    if (key == null) throw Error('Key cannot be null');
-    this._exec(key, val);
-    return this._push(key, val);
+    this._exec(CLEAR);
+    return this._push(CLEAR);
   }
 
   delete(k) {
     this._exec(k);
     return this._push(k);
+  }
+
+  set(key, val) {
+    this._exec(key, val);
+    return this._push(key, val);
   }
 };
