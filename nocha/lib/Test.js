@@ -1,6 +1,5 @@
 const chalk = require('chalk');
 const Runnable = require('./Runnable');
-const {argv} = require('yargs');
 
 module.exports = class Test extends Runnable {
   constructor(parent, name, testFunc) {
@@ -9,15 +8,17 @@ module.exports = class Test extends Runnable {
   }
 
   async run(suite) {
+    if (this.shouldSkip()) return;
+
     console.log(this.title);
 
     await this.parent.runHook('beforeEach');
 
     try {
       await new Promise((resolve, reject) => {
-        // Hi, if you're in your debugger you can get to your test function by
-        // "step"-ing into `testFunc()` in the next line
-        if (argv.break && argv.break == this.id) debugger;
+        if (this.shouldBreak()) debugger;
+        // --break users: You can step into your test function by stepping into
+        // `testFunc` here ...
         const p = this.testFunc();
 
         if (!p || !p.then) return resolve(p);

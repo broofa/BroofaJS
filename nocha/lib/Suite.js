@@ -30,14 +30,23 @@ class Suite extends Runnable {
   }
 
   async run() {
+    if (this.shouldSkip()) return;
+
     if (this.parent) console.log(`${chalk.bold(this.title)}`);
 
-    if (argv.break && argv.break == this.id) debugger;
+    // --break users: You ended up here because you set --break, you can step
+    // into this Suite's "before" hook below (if defined), or step into this
+    // suite's "runnable" sub-Suites or sub-Tasks in the for-runnable-of loop
+    // after that.
 
     await this.runHook('before');
 
     const deactivate = this.activate();
     try {
+      if (this.shouldBreak()) debugger;
+
+      // --break users: You can step through this suite's tests in this
+      // loop here ...
       for (const runnable of this.runnables) {
         await runnable.run(this);
       }

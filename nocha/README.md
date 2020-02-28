@@ -30,11 +30,17 @@ $ nocha test/foo.js test/bar.js
 
 ## flags
 
-### --break=[suite or task number]
+The flags below refer to step #'s, which precede each task and suite title in
+console output.  E.g. "1.3 **Validates Email**"'s step number is `1.3`.
 
-Wait for debugger to connect, then break immediately prior to running the
-designated suite or task number.  You can find the number, preceeeding each
-suite or task in the console output.
+### --only=[step number]
+
+Run the named step, and only the named step.
+
+### --break=[step number]
+
+Waits for debugger to connect then breaks immediately prior to running the
+designated step.
 
 ## ES6 module support
 
