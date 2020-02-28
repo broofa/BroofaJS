@@ -2,23 +2,24 @@ const {promises: fs} = require('fs');
 const path = require('path');
 
 /**
- * An ES6 Map, lazily persisted to an append-only save-file, so it's state can
- * be restored, even if the process terminates unexpectedly.
+ * An ES6 Map, lazily persisted to an append-only transaction file, so it's
+ * state can be restored, even if the process terminates unexpectedly.
  *
  * Write actions (set, delete, clear) are applied
  * immediately, but are saved async.  Caller's wishing to insure a write action
  * is persisted should await the action before continuing.
  *
- * The save-file format is a newline-separated list of JSON objects describing
- * actions to apply to the map.  Each action is a 1 or 2 element array as
- * follows:
+ * The transaction file format is a newline-separated list of JSON objects
+ * describing actions to apply to the map.  Each action is a 1 or 2 element
+ * array as follows:
  *
  *   [null] = Clear map
  *   [null, {Object values}] = clear map and set all values
  *   ["key"] = Delete "key" from map
  *   ["key", {JSON value}] = Set "key" to value
  *
- * File size is capped at [approximately] `options.maxFileSize.  If the save-file
+ * File size is capped at [approximately] `options.maxFileSize.  If the
+ * transaction file
  * exceeds this size at the time of a write action, the file is reset and the
  * action is converted to a full-state snapshot.  I.e. write actions are
  * generally very fast (on the order of 100K's/second or even 1M's/second) but
@@ -28,7 +29,7 @@ module.exports = class PersistentMap extends Map {
   /**
    * @param {String} name
    * @param {Object} [options]
-   * @param {Number} [options.maxFileSize = 1e6] Max size of save-file (bytes)
+   * @param {Number} [options.maxFileSize = 1e6] Max size of transaction file (bytes)
    */
   constructor(filepath, options) {
     super();
@@ -71,18 +72,21 @@ module.exports = class PersistentMap extends Map {
 
     // Loop because items may get pushed onto queue while we're writing
     while (this._queue) {
-      const q = this._queue;
+      let q = this._queue;
       delete this._queue;
 
       this._writing = true;
       try {
-        // Reset save-file if first item is a full snapshot
-        const isReset = q[0] && (q[0][0] == null);
+        // Get index of last full-state snapshot action.  If there is one, drop
+        // any preceeding actions (they'll be negated by the snapshot)
+        const lastSnapshotIndex = q.reduce ((a, b, i) => b[0] == null ? i : a, -1);
+        if (lastSnapshotIndex > 0) q = q.slice(lastSnapshotIndex);
 
         // Compose JSON to write
         const json = q.map(q => JSON.stringify(q)).join('\n') + '\n';
 
-        if (isReset) {
+        if (lastSnapshotIndex >= 0) {
+          // Snapshots negate all prior actions, so reset the file
           this.nBytes = 0;
           const tmpFile = `${this.filepath}.tmp`;
           await fs.writeFile(tmpFile, json);
@@ -137,7 +141,7 @@ module.exports = class PersistentMap extends Map {
   }
 
   /**
-   * Load map from save-file.  This also compacts the file before resolving.
+   * Load map from transaction file.  This also compacts the file before resolving.
    */
   async load() {
     // Read file, separate into action array
@@ -154,6 +158,7 @@ module.exports = class PersistentMap extends Map {
     // Apply each action
     super.clear();
     lines.forEach((line, i) => {
+      line = line.trim();
       if (!line) return;
       let action;
       try {
@@ -166,14 +171,21 @@ module.exports = class PersistentMap extends Map {
       this._exec(...action);
     });
 
-    // Compact file
-    await this._push(null, Object.fromEntries(this.entries()));
-
     return this;
   }
 
   /**
-   * (async) Resolve once all queued actions have been saved
+   * Compact the transaction file by starting a new file, initialized with the
+   * current map state.
+   *
+   * @returns {Promise} Resolves once all queued actions have been saved
+   */
+  compact() {
+    return this._push(null, Object.fromEntries(this.entries()));
+  }
+
+  /**
+   * @returns {Promise} Resolves once all queued actions have been saved
    */
   flush() {
     return this._push();

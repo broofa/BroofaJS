@@ -1,16 +1,12 @@
 # PersistentMap
 
-An ES6 Map with Redis-inspired persistence and durability.
+An ES6 Map with Redis-inspired persistence and durability
 
 Features:
-  * ES6 Map api
-  * Performant (100K's writes/second sustained)
-  * Append-only, atomic file operations for performance and reliability
-  * Configurable, capped file size
-
-Note: This API has not been designed or tested for cases involving large amounts
-of data.  If you're pushing MB's of data into your map then you'll be in uncharted
-territory.  Please test accordingly and report back here with what you find.
+  * Compatible - Drop-in replacement for ES6 Map
+  * Performant - 100K's writes/second sustained
+  * Reliable - Append-only transaction file,  atomic file operations
+  * Sweet and simple - Zero dependencies, pure JS, < 1KB of code
 
 ## Quick Start
 
@@ -25,36 +21,55 @@ Use:
 // Create a map (and tell it where to save state on disk)
 const pm = new PersistentMap('~/datastore.json');
 
-// Load any previous state
+// Load any prior state
 await pm.load();
 
-// Treat it like a Map.  State changes are saved to file automatically.
+// Treat it like a Map
 pm.set('foo', 123);
 pm.get('foo'); // -> 123
 
-// Mutation methods (set, delete, clear) may be await'ed to insure persistence
+// If you want to verify state has been saved before proceeding
+// await the result
 await pm.set('foo', 345);
 
-// 'foo' is now saved to disk.  If/when the process dies, restarting it will
-// restore 'foo' when the map is load()'ed, above
+// 'foo' is now saved to disk.  If/when the process dies, restarting it
+// will restore 'foo' when the map is load()'ed, above
 ```
+
+## Performance
+
+PersistentMap works by writing state transactions to an append-only transaction file.  Thus, performance of methods that change the map state (`set()`, `delete()`, and `clear()`), if await'ed, will be noticeably slower.  (Still fast, but "file system fast", not "in process memory" fast).  In most cases, [Big O](https://en.wikipedia.org/wiki/Big_O_notation) performance will be:
+
+* `set(key, val)`: O(N) , where N = `JSON.stringify(val).length`
+* `delete(key)`: O(1)
+* `clear()`: O(1)
+
+The `set()` and `delete()` operations may occasionally trigger a full-state
+rewrite (occurs when filesize > `options.maxFileSize`), in which case
+performance will be O(N), where N = `JSON.stringify(map).length`
 
 ## API
 
-PersistentMap extends the ES6 Map class and, thus, supports the [full ES6 Map
-API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).  Additionally, it provides the following API:
+PersistentMap extends the ES6 Map class.  It provides the full [ES6 Map API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), with the following changes:
 
-### new PersistentMap(filepath, options)
+* New constructor signature, documented below
+* Existing `clear()`, `delete()`, and `set()` methods enhanced to return a
+`Promise` that resolves when state has been successfully saved to file (or
+    rejects on error).
+* New `compact()`, `flush()`, and `load()` methods, documented below
 
-Create
+### constructor(filepath, options)
 
-* `filepath` - Location at which to write append-only file
-* `options.maxFileSize` - File size (in bytes) at which to auto-compact. Default = 1,000,000.
+* `filepath` - Location of transaction file. This will be created if it does not
+    exist. Note: PersistentMap may occasionally create a temporary file at `${filepath}.tmp`, as well.
+* `options.maxFileSize` - Size (bytes) at which to compact the transaction file.
+Default = 1,000,000.
 
-### async load()
+### `async` compact()`
+Saves current state of map to the transaction file.
 
-Load map from disk.  This also compacts the append-only file.
-
-### async flush()
-
+### `async` flush()
 Wait for all pending writes to complete before resolving.
+
+### `async` load()
+Load map state from transaction file.

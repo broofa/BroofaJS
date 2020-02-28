@@ -22,7 +22,7 @@ describe(__filename, () => {
     assert.deepEqual([...pm].sort(), [['x', 123], ['y', 456]]); // Iterable (same as entries())
   });
 
-  it('clear', async () => {
+  it('clear()', async () => {
     const pm = new PersistentMap(FILE);
 
     await pm.clear();
@@ -39,18 +39,27 @@ describe(__filename, () => {
     } catch (err) {}
   });
 
-  it('loads', async () => {
-    let pm = new PersistentMap(FILE);
-    await pm.clear();
-    await pm.set('x', 123);
-    await pm.set('y', 456);
-    assert.equal(await pm.get('x'), 123);
-
-    pm = new PersistentMap(FILE);
+  it('load() & compact()', async() => {
+    const pm = new PersistentMap(FILE);
+    await fs.writeFile(pm.filepath,
+      `
+      [null, {"x": 123, "y": "456"}]
+      ["foo", "abc"]
+      ["bar", "def"]
+      `
+    );
     await pm.load();
+    assert.deepEqual([...pm.entries()].sort(), [
+      ['bar', 'def'],
+      ['foo', 'abc'],
+      ['x', 123],
+      ['y', 456]
+    ]);
 
-    // Clear cache
-    assert.deepEqual(Object.fromEntries(pm.entries()), {x: 123, y: 456});
+    await pm.compact();
+    const json = await fs.readFile(pm.filepath);
+
+    assert.deepEqual(JSON.parse(json),[null, {x: 123, y: 456, foo: 'abc', bar: 'def'}]);
   });
 
   it('perf', async () => {
