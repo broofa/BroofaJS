@@ -1,6 +1,6 @@
 {
   "name": "nocha",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A mocha-inspired test utility",
   "main": "lib/index.js",
   "exports": {
