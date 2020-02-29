@@ -21,8 +21,19 @@ class Suite extends Runnable {
 
   async runHook(hookName) {
     if (!(hookName in this._hooks)) return;
-    const p = this._hooks[hookName].apply(null);
-    return p && p.then ? await p : p;
+    try {
+      return await this._hooks[hookName].apply(null);
+    } catch (err) {
+      // Coerce to error so we can extend with hook name
+      if (!(err instanceof Error)) {
+        err = new Error(err);
+        delete err.stack;
+      }
+
+      err.message = `In ${hookName}(), "${err.message}"`;
+
+      throw err;
+    }
   }
 
   add(runnable) {
@@ -34,26 +45,21 @@ class Suite extends Runnable {
 
     if (this.parent) console.log(`${chalk.bold(this.title)}`);
 
-    // --break users: You ended up here because you set --break, you can step
-    // into this Suite's "before" hook below (if defined), or step into this
-    // suite's "runnable" sub-Suites or sub-Tasks in the for-runnable-of loop
-    // after that.
-
-    await this.runHook('before');
-
     const deactivate = this.activate();
     try {
-      if (this.shouldBreak()) debugger;
+      await this.runHook('before');
 
+      if (this.shouldBreak()) debugger;
       // --break users: You can step through this suite's tests in this
-      // loop here ...
+      // loop ...
       for (const runnable of this.runnables) {
         await runnable.run(this);
       }
+
       console.log();
 
-    } finally {
       await this.runHook('after');
+    } finally {
       deactivate();
     }
   }

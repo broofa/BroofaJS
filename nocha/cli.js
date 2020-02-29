@@ -71,13 +71,14 @@ async function main() {
   if (!errors.length) {
     console.log(chalk.green('All tests passed! \u{1f389}'));
   } else {
-    console.log(chalk.red.inverse(`${errors.length} failures\u{1f61e}`));
-
-    errors.forEach(test => {
+    console.log(chalk.underline('Error Details'));
+    for (const test of errors) {
+      console.log(chalk.red.bold(test.title));
+      console.error(test.error);
       console.log()
-      console.log(chalk.red(`${test.title}`));
-      console.log(test.error);
-    });
+    }
+
+    console.log(chalk.red.inverse(`${errors.length} failures\u{1f61e}`));
 
     process.exit(1);
   }

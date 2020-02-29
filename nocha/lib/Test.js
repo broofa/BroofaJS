@@ -12,9 +12,9 @@ module.exports = class Test extends Runnable {
 
     console.log(this.title);
 
-    await this.parent.runHook('beforeEach');
-
     try {
+      await this.parent.runHook('beforeEach');
+
       await new Promise((resolve, reject) => {
         if (this.shouldBreak()) debugger;
         // --break users: You can step into your test function by stepping into
@@ -34,11 +34,14 @@ module.exports = class Test extends Runnable {
             reject(err);
           });
       });
+
+      await this.parent.runHook('afterEach');
     } catch (err) {
       this.error = err;
-      console.log(this.id.replace(/./g, ' '), chalk.red(`ERROR: ${err.message}`));
+      console.log(
+        this.id.replace(/./g, ' '),
+        chalk.red(err)
+      );
     }
-
-    await this.parent.runHook('afterEach');
   }
 };
