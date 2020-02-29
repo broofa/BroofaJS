@@ -11,7 +11,7 @@ const CLEAR = Symbol('clear file');
  * immediately, but are saved async.  Caller's wishing to insure a write action
  * is persisted should await the action before continuing.
  *
- * The transaction file format is a newline-separated list of JSON objects
+ * The transaction file format is a newline-separated list of JSON arrays
  * describing actions to apply to the map.  Each action is a 1 or 2 element
  * array as follows:
  *
@@ -78,22 +78,31 @@ module.exports = class PersistentMap extends Map {
         if (clearIndex >= 0) q = q.slice(clearIndex + 1);
 
         // Compose JSON to write
-        const json = q.map(action => JSON.stringify(action)).join('\n') + '\n';
+        const json = q.map(action => JSON.stringify(action)).join('\n');
 
         if (clearIndex >= 0) {
           // If CLEAR, start with new file
           this._nBytes = 0;
-          const tmpFile = `${this.filepath}.tmp`;
-          await fs.writeFile(tmpFile, json);
-          await fs.rename(tmpFile, this.filepath);
-        } else {
-          await fs.appendFile(this.filepath, json);
+          if (!json) {
+            await fs.unlink(this.filepath);
+          } else {
+            const tmpFile = `${this.filepath}.tmp`;
+            await fs.writeFile(tmpFile, json + '\n');
+            await fs.rename(tmpFile, this.filepath);
+          }
+        } else if (json) {
+          await fs.appendFile(this.filepath, json + '\n');
         }
 
         this._nBytes += json.length;
         resolve();
       } catch (err) {
-        reject(err);
+        if (err.code == 'ENOENT') {
+          // unlinking non-existent file is okay
+          resolve(err);
+        } else {
+          reject(err);
+        }
       } finally {
         this._writing = false;
       }
@@ -207,7 +216,8 @@ module.exports = class PersistentMap extends Map {
 
   delete(k) {
     this._exec(k);
-    return this._push(k);
+    // If empty, we clear (delete) the file
+    return this._push(this.size == 0 ? CLEAR : k);
   }
 
   set(key, val) {

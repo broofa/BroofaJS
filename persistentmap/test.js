@@ -5,6 +5,19 @@ const PersistentMap = require('./index.js');
 const FILE = '/tmp/test_map.json';
 
 describe(__filename, () => {
+  beforeEach(async () => {
+    // Probably-futile attempt to idiot-proof this code
+    assert(/^\/tmp/.test(FILE));
+
+    try {
+      await fs.unlink(FILE);
+    } catch (err) {
+      if (err.code != 'ENOENT') {
+        throw err;
+      }
+    }
+  });
+
   it('ES6 API', async () => {
     const pm = new PersistentMap(FILE);
     await pm.clear();
@@ -22,21 +35,31 @@ describe(__filename, () => {
     assert.deepEqual([...pm].sort(), [['x', 123], ['y', 456]]); // Iterable (same as entries())
   });
 
-  it('clear()', async () => {
+  it('set() & clear()', async () => {
     const pm = new PersistentMap(FILE);
+    await assert.rejects(() => fs.stat(pm.filepath), 'File removed');
 
-    await pm.clear();
     await pm.set('x', 123);
-    assert.equal(await pm.get('x'), 123);
+    await assert.doesNotReject(() => fs.stat(pm.filepath), 'set() created file');
 
     await pm.clear();
     assert.equal(pm.size, 0);
 
-    try {
-      // File should not exist
-      await fs.stat(pm.getPath());
-      assert.rejects('failed to throw', ' fafdaa');
-    } catch (err) {}
+    await assert.rejects(() => fs.stat(pm.filepath), 'clear() deleted file');
+  });
+
+  it('clear()', async () => {
+    const pm = new PersistentMap(FILE);
+
+    await assert.rejects(() => fs.stat(pm.filepath), 'File removed');
+
+    await pm.set('x', 123);
+    await assert.doesNotReject(() => fs.stat(pm.filepath), 'set() created file');
+
+    await pm.clear();
+    assert.equal(pm.size, 0);
+
+    await assert.rejects(() => fs.stat(pm.filepath), 'clear() deleted file');
   });
 
   it('load() & compact()', async() => {
@@ -44,11 +67,6 @@ describe(__filename, () => {
     // for-loop, below, so if the compact-load logic it will result in an
     // incomplete restore of the state (and trigger an error)
     const pm = new PersistentMap(FILE, {maxFileSize: 43000});
-
-    // Delete transaction file
-    try {
-      await fs.unlink(pm.filepath);
-    } catch (err) {}
 
     // Write enough state to trigger a compact()
     let val = '';
