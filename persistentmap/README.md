@@ -8,6 +8,12 @@ Features:
   * Reliable - Append-only transaction file,  atomic file operations
   * Sweet and simple - Zero dependencies, pure JS, < 1KB of code
 
+**What's this for?** PersitentMap is a lightweight, in-process data store that
+uses time-tested principles for insuring data-integrity.  In short, if you want
+to retain metrics and analytics counters, event history, app preferences ...
+whatever, but don't want the hassle of setting up MySQL or Redis, this might be
+what you're after.
+
 ## Quick Start
 
 Install:
@@ -38,14 +44,17 @@ await pm.set('foo', 345);
 
 ## Performance
 
-PersistentMap works by writing state transactions to an append-only transaction file.  Thus, performance of methods that change the map state (`set()`, `delete()`, and `clear()`), if await'ed, will be noticeably slower.  (Still fast, but "file system fast", not "in process memory" fast).  In most cases, [Big O](https://en.wikipedia.org/wiki/Big_O_notation) performance will be:
+Unless you're doing 10K's or 100Ks of `set()` or `delete()` calls per second, PersistentMap performance should not be an issue.  Methods that change the map state(`set()`, `delete()`, and `clear()`), if await'ed, will be fast, but "file system fast", not "in process memory" fast, and depend to some extent on how much data you're storing.  In these cases, the [Big O](https://en.wikipedia.org/wiki/Big_O_notation) performance will be:
 
 * `set(key, val)`: O(N) , where N = `JSON.stringify(val).length`
 * `delete(key)`: O(1)
 * `clear()`: O(1)
 
-The `set()` and `delete()` operations may occasionally trigger a full-state
-rewrite (occurs when filesize > `options.maxFileSize`), in which case
+For all other methods, performance should be indistuingishable from a native
+Map.
+
+***Note***: the `set()` and `delete()` operations may occasionally trigger a
+full-state rewrite (this occurs when filesize > `options.maxFileSize`), in which case
 performance will be O(N), where N = `JSON.stringify(map).length`
 
 ## API
