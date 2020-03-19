@@ -6,13 +6,7 @@ An drop-in replacement for [parts of] `mocha` that makes debugging unit tests ea
 * `--break` to break immediately before entering a test 
 * ES6 support (experimental)
 
-## Usage
-
-```
-$ nocha test/foo.js test/bar.js
-```
-
-## Example - Normal run
+## Usage - Normal run
 ```
 $ nocha test/index.js
 test/index.js
@@ -24,7 +18,7 @@ test/index.js
 All tests passed! 🎉
 ```
 
-## Example - Run a single test
+## Usage - Run a specific test only
 ```
 $ nocha --only=2.1 test/
 test/index.js
@@ -32,7 +26,7 @@ test/index.js
 2.1 Frabjous day
 ```
 
-## Example - Pause debugger at a given test
+## Usage - Pause debugger at a specified test
 ```
 $ nocha --break=2.1 test/
 Debugger listening on ws://127.0.0.1:9229/ab07086f-8e63-401f-8079-d4a58803fcc8
