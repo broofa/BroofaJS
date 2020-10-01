@@ -22,10 +22,20 @@ describe('simplur', () => {
     assert.equal(simplur`There [is|are] ${2} m[an|en]`, 'There are 2 men');
   });
 
-  it('Custom value', () => {
-    debugger;
-    assert.equal(simplur`${[0, 'no']} t[ooth|eeth]`, 'no teeth');
-    assert.equal(simplur`${[1, 'only']} t[ooth|eeth]`, 'only tooth');
-    assert.equal(simplur`${[26, 'all']} t[ooth|eeth]`, 'all teeth');
+  it('Custom units', () => {
+    function units(val) {
+      return val < 1 ? 'no' :
+        val == 1 ? 'only' :
+        val == 2 ? 'both' :
+        val < 5 ? 'a few' :
+        null;
+    }
+debugger;
+    assert.equal(simplur`${[0, units]} t[ooth|eeth]`, 'no teeth');
+    assert.equal(simplur`${[1, units]} t[ooth|eeth]`, 'only tooth');
+    assert.equal(simplur`${[2, units]} t[ooth|eeth]`, 'both teeth');
+    assert.equal(simplur`${[3, units]} t[ooth|eeth]`, 'a few teeth');
+    assert.equal(simplur`${[4, units]} t[ooth|eeth]`, 'a few teeth');
+    assert.equal(simplur`${[5, units]} t[ooth|eeth]`, '5 teeth');
   });
 });
