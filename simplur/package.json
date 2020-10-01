@@ -3,9 +3,11 @@
   "version": "1.1.0",
   "description": "Simple, versatile string pluralization",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "prepare": "npm test && runmd --output=README.md src/README_js.md",
-    "test": "mocha src/test.js"
+    "test": "mocha src/test.js",
+    "generate:types": "npx typescript index.js --declaration --allowJs --emitDeclarationOnly --outDir ."
   },
   "repository": {
     "type": "git",
