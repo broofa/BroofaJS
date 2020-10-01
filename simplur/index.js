@@ -7,7 +7,11 @@ module.exports = function(strings, ...exps) {
   const result = [];
   let n = exps[0];
   let label = n;
-  if (Array.isArray(n) && n.length == 2) [n, label] = n;
+  if (Array.isArray(n) && n.length == 2 && typeof(n[1]) == 'function') {
+    label = n[1](n[0]) || n[0];
+    n = n[0];
+  }
+
   for (const s of strings) {
     if (typeof(n) == 'number') {
       result.push(s.replace(/\[([^|]*)\|([^\]]*)\]/g, n == 1 ? '$1' : '$2'));
@@ -17,7 +21,10 @@ module.exports = function(strings, ...exps) {
 
     if (!exps.length) break;
     n = label = exps.shift();
-    if (Array.isArray(n) && n.length == 2) [n, label] = n;
+    if (Array.isArray(n) && n.length == 2 && typeof(n[1]) == 'function') {
+      label = n[1](n[0]) || n[0];
+      n = n[0];
+    }
     result.push(label);
   }
 
