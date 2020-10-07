@@ -8,7 +8,7 @@ module.exports = function(strings, ...exps) {
   let n = exps[0];
   let label = n;
   if (Array.isArray(n) && n.length == 2 && typeof(n[1]) == 'function') {
-    label = n[1](n[0]) || n[0];
+    label = n[1](n[0]);
     n = n[0];
   }
 
@@ -22,11 +22,11 @@ module.exports = function(strings, ...exps) {
     if (!exps.length) break;
     n = label = exps.shift();
     if (Array.isArray(n) && n.length == 2 && typeof(n[1]) == 'function') {
-      label = n[1](n[0]) || n[0];
+      label = n[1](n[0]);
       n = n[0];
     }
     result.push(label);
   }
 
-  return result.join('');
+  return result.join('').trim();
 }
