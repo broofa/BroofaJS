@@ -23,7 +23,8 @@ describe('simplur', () => {
   });
 
   it('Omit quantity', () => {
-    assert.equal(simplur`${[1, () => null]} [This|These] [man|men]`, 'This man');
+    assert.equal(simplur`${[1]}[This|These] [man|men]`, 'This man');
+    assert.equal(simplur`${[2]}[This|These] [man|men]`, 'These men');
   });
 
   it('Custom units', () => {
