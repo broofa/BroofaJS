@@ -22,13 +22,18 @@ describe('simplur', () => {
     assert.equal(simplur`There [is|are] ${2} m[an|en]`, 'There are 2 men');
   });
 
+  it('Omit quantity', () => {
+    assert.equal(simplur`${[1]}[This|These] [man|men]`, 'This man');
+    assert.equal(simplur`${[2]}[This|These] [man|men]`, 'These men');
+  });
+
   it('Custom units', () => {
     function units(val) {
       return val < 1 ? 'no' :
         val == 1 ? 'only' :
         val == 2 ? 'both' :
         val < 5 ? 'a few' :
-        null;
+        val;
     }
 debugger;
     assert.equal(simplur`${[0, units]} t[ooth|eeth]`, 'no teeth');
