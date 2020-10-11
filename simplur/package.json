@@ -6,6 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "prepare": "npm test && runmd --output=README.md src/README_js.md",
+    "md": "runmd --watch --output=README.md src/README_js.md",
     "test": "mocha src/test.js",
     "generate:types": "npx typescript index.js --declaration --allowJs --emitDeclarationOnly --outDir ."
   },
@@ -24,7 +25,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "7.0.1",
-    "runmd": "1.3.1"
+    "mocha": "8.1.3",
+    "runmd": "1.3.2"
   }
 }

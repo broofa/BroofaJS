@@ -2,45 +2,62 @@ const assert = require('assert');
 const simplur = require('..');
 
 describe('simplur', () => {
-  it('Simple case', () => {
+  it('ignores tokens when no numeric quantity is in scope', () => {
+    assert.equal(simplur`hello world`, 'hello world');
+    assert.equal(simplur`[hello|world]`, '[hello|world]');
+    assert.equal(simplur`${'hello'} [hello|world]`, 'hello [hello|world]');
+  });
+
+  it('properly pluralizes', () => {
+    assert.equal(simplur`${0} t[ooth|eeth]`, '0 teeth');
     assert.equal(simplur`${1} t[ooth|eeth]`, '1 tooth');
     assert.equal(simplur`${2} t[ooth|eeth]`, '2 teeth');
   });
 
-  it('Many values, Many substitutions', () => {
-    assert.equal(simplur`${1} ca[lf|lves] and ${1} lea[f|ves]`, '1 calf and 1 leaf');
-    assert.equal(simplur`${2} ca[lf|lves] and ${2} lea[f|ves]`, '2 calves and 2 leaves');
+  it('uses leading quantity', () => {
+    assert.equal(simplur`${2} t[ooth|eeth]`, '2 teeth');
   });
 
-  it('One value, many substitutions', () => {
-    assert.equal(simplur`${1} m[an|en] and wom[an|en]`, '1 man and woman');
-    assert.equal(simplur`${2} m[an|en] and wom[an|en]`, '2 men and women');
+  it('uses trailing quantity', () => {
+    assert.equal(simplur`t[ooth|eeth] ${2}`, 'teeth 2');
   });
 
-  it('Leading substitution', () => {
-    assert.equal(simplur`There [is|are] ${1} m[an|en]`, 'There is 1 man');
-    assert.equal(simplur`There [is|are] ${2} m[an|en]`, 'There are 2 men');
+  it('prefers leading quantity', () => {
+    assert.equal(simplur`${2} t[ooth|eeth] ${3}`, '2 teeth 3');
   });
 
-  it('Omit quantity', () => {
-    assert.equal(simplur`${[1]}[This|These] [man|men]`, 'This man');
-    assert.equal(simplur`${[2]}[This|These] [man|men]`, 'These men');
+  it('finds numeric quantities', () => {
+    assert.equal(simplur`${'baz'} ${1} [hello|world]`, 'baz 1 hello');
+    assert.equal(simplur`${1} ${'baz'} [hello|world]`, '1 baz hello');
+    assert.equal(simplur`${'baz'} [hello|world] ${1}`, 'baz hello 1');
+    assert.equal(simplur`[hello|world] ${'baz'} ${1}`, 'hello baz 1');
   });
 
-  it('Custom units', () => {
-    function units(val) {
+  it('supports custom quantity function', () => {
+    function formatQuantity(val) {
       return val < 1 ? 'no' :
-        val == 1 ? 'only' :
+        val == 1 ? 'one' :
         val == 2 ? 'both' :
-        val < 5 ? 'a few' :
+        val == 3 ? null :
         val;
     }
-debugger;
-    assert.equal(simplur`${[0, units]} t[ooth|eeth]`, 'no teeth');
-    assert.equal(simplur`${[1, units]} t[ooth|eeth]`, 'only tooth');
-    assert.equal(simplur`${[2, units]} t[ooth|eeth]`, 'both teeth');
-    assert.equal(simplur`${[3, units]} t[ooth|eeth]`, 'a few teeth');
-    assert.equal(simplur`${[4, units]} t[ooth|eeth]`, 'a few teeth');
-    assert.equal(simplur`${[5, units]} t[ooth|eeth]`, '5 teeth');
+
+    assert.equal(simplur`${[0, formatQuantity]} t[ooth|eeth]`, 'no teeth');
+    assert.equal(simplur`${[1, formatQuantity]} t[ooth|eeth]`, 'one tooth');
+    assert.equal(simplur`${[2, formatQuantity]} t[ooth|eeth]`, 'both teeth');
+    assert.equal(simplur`${[3, formatQuantity]} t[ooth|eeth]`, 'teeth');
+    assert.equal(simplur`${[4, formatQuantity]} t[ooth|eeth]`, '4 teeth');
+
+    assert.equal(simplur`${[0]} t[ooth|eeth]`, 'teeth');
+  });
+
+  it('allows one quantity, many tokens', () => {
+    assert.equal(simplur`${1} There [is|are] m[an|en]`, '1 There is man');
+    assert.equal(simplur`There [is|are] ${1} m[an|en]`, 'There is 1 man');
+    assert.equal(simplur`There [is|are] m[an|en] ${1}`, 'There is man 1');
+  });
+
+  it('allows many quantities, many tokens', () => {
+    assert.equal(simplur`${1} ca[lf|lves] and ${1} lea[f|ves]`, '1 calf and 1 leaf');
   });
 });
