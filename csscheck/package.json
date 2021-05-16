@@ -1,0 +1,25 @@
+{
+  "name": "checkcss",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Utility method for warning when elements have a `class` attribute that refers to an undefined CSS class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/broofa/BroofaJS/tree/master/csscheck"
+  },
+  "keywords": [
+    "css",
+    "class",
+    "classnames",
+    "missing",
+    "undefined",
+    "check",
+    "DOM"
+  ],
+  "author": " <robert@broofa.com>",
+  "license": "ISC"
+}
