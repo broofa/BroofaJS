@@ -1,23 +1,27 @@
 
 # checkcss
 
-Utility method for warning any time the `class` attribute of an element references undefined / non-existent CSS class.
+Utility method for warning any time the `class` attribute of an element references an undefined CSS class.
 
-In addition to doing a sweep of the DOM at the time `cssCheck()` is called, this sets up a `MutationObserver` to continuously monitor DOM changes, so is well-suited for dynamic webapps.
+This module provides two methods:
 
-(Note: The monitoring logic is pretty efficient but is probably not something you want to be running in production.)
+* `checkCSS()` performs a one-time sweep of the DOM.
+* `monitorCSS()` Sets up a
+[MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) to continuously monitor DOM changes, looking for elements tha treference undefined CSS classes. (Useful for React apps, single-page apps that dynamically update the DOM.)
+
+(Note: `monitorCSS()` pretty efficient but is probably not something you want to be running in production.)
 
 
 ## Installation
 
 ```
-npm i csscheck
+npm i checkcss
 ```
 
 ## Usage
 
 ```javascript
-import checkCSS, { cssMonitor } from 'checkcss';
+import checkCSS, { monitorCSS } from 'checkcss';
 
 // Check current DOM
 checkCSS();
