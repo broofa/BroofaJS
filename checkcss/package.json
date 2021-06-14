@@ -1,6 +1,6 @@
 {
   "name": "checkcss",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "type": "module",
   "description": "Utility method for warning when elements have a `class` attribute that refers to an undefined CSS class",
   "main": "index.js",
