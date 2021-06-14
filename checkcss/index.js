@@ -1,9 +1,17 @@
 const seen = new Set();
 let defined;
 
+let ignoreRE;
+export function ignoreCSS(re) {
+  ignoreRE = re;
+}
+
 function checkClassNames(node, includeChildren = false) {
   if (node?.classList)  {
     for (const cl of node.classList) {
+      // Ignore if matches the ignore regex
+      if (ignoreRE.test(cl)) continue;
+
       // Ignore defined and already-seen classes
       if (defined.has(cl) || seen.has(cl)) continue;
       // Mark as seen
@@ -22,6 +30,14 @@ function checkClassNames(node, includeChildren = false) {
 
 function ingestRules(rules) {
   for (const rule of rules) {
+    if (!rule) continue;
+    let cssRules;
+    try {
+      cssRules = rule.cssRules;
+    } catch (err) {
+      console.log(`Unable to access ${rule.href}`);
+      continue;
+    }
     if (rule?.cssRules) { // Rules can contain sub-rules (e.g. @media, @print)
       ingestRules(rule.cssRules);
     } else if (rule.selectorText) {
