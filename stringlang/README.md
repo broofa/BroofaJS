@@ -1,10 +1,6 @@
-<!--
-  -- This file is auto-generated from src/README_js.md. Changes should be made there.
-  -->
+# stringlang
 
-# StringLang
-
-Count characters by unicode block
+Data and utilities for identifying characters by unicode block
 
 ## Installation
 
@@ -12,21 +8,51 @@ Count characters by unicode block
 npm i @broofa/stringlang
 ```
 
-## Example
-
 ```javascript
-const StringLang = require('@broofa/stringlang');
-
-const sl = new StringLang('Hello World or Καλημέρα κόσμε or こんにちは 世界');
-
-// Use inspect() to see all block counts
-sl.inspect(); // ⇨ { basicLatin: 21, cjkUnifiedIdeographs: 2, greekandCoptic: 13, hiragana: 5 }
-
-// There is also a property for each block containing the character counts
-const monkeys = new StringLang('🙈🙉🙊');
-monkeys.emoticons; // ⇨ 3
-
+import {unicodeBlock, unicodeBlockCount, BLOCKS} from 'stringlang';
 ```
 
-----
-Markdown generated from [src/README_js.md](src/README_js.md) by [![RunMD Logo](http://i.imgur.com/h0FVyzU.png)](https://github.com/broofa/runmd)
+## unicodeBlock()
+Get block of a given character or code point.
+
+Note: Runs at 10M+ chars/second on a modern Mac laptop ([test data](https://raw.githubusercontent.com/bits/UTF-8-Unicode-Test-Documents/master/UTF-8_sequence_unseparated/utf8_sequence_0-0x10ffff_assigned_printable_unseparated.txt))
+
+```javascript
+// Get block (codePoint)
+unicodeBlock(30028); // => 'CJK Unified Ideographs'
+```
+
+```javascript
+// Get block (string)
+unicodeBlock('界'); // => 'CJK Unified Ideographs'
+```
+
+```javascript
+// Get block (string, character index)
+unicodeBlock('Aα界', 2); // => 'CJK Unified Ideographs'
+```
+
+## unicodeBlockCount()
+Count characters by block
+
+```javascript
+unicodeBlockCount('Hello World or Καλημέρα κόσμε or こんにちは 世界'); // =>
+// {
+//   'Basic Latin': 21,
+//   'CJK Unified Ideographs': 2,
+//   'Greek and Coptic': 13,
+//   Hiragana: 5
+// }
+```
+
+## BLOCKS
+Array of [block name, min code point, max code point] entries, ordered by code
+point.
+```javascript
+BLOCKS; // =>
+// [
+//   [ 'Basic Latin', 0, 127 ],
+//   [ 'Latin-1 Supplement', 128, 255 ],
+//   ... 308 more entries
+// ]
+```

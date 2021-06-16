@@ -1,13 +1,20 @@
 {
   "name": "@broofa/stringlang",
   "version": "1.0.3",
-  "description": "Count string characters by unicode block",
+  "description": "Count the characters in a string by unicode block",
   "main": "index.js",
-  "dependencies": {},
+  "type": "module",
+  "files": [
+    "index.js",
+    "getUnicodBlock.js",
+    "getUnicodBlock.js"
+  ],
   "devDependencies": {
+    "node-fetch": "2.6.1",
     "runmd": "^1.0.1"
   },
   "scripts": {
+    "build": "node scripts/build.js > data/blocks.js",
     "test": "node test",
     "md": "runmd --watch --output=README.md src/README_js.md",
     "prepare": "npm test && runmd --output=README.md src/README_js.md"
@@ -17,8 +24,12 @@
     "url": "https://github.com/broofa/BroofaJS/tree/master/stringlang"
   },
   "keywords": [
-    "Unicode",
-    "String"
+    "unicode",
+    "unicode-blocks",
+    "blocks",
+    "characters",
+    "count",
+    "string"
   ],
   "author": "Robert Kieffer",
   "license": "ISC"
