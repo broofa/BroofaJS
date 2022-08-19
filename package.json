@@ -1,12 +1,8 @@
 {
   "name": "@broofa/core",
   "private": true,
-  "devDependencies": {
-    "globby": "^8.0.1"
-  },
   "description": "Misc. JS utilities that may be of broader interest.  See subdirectories for documentation",
   "version": "1.0.1",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "./build/readme.js"
