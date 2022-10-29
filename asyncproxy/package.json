@@ -1,6 +1,6 @@
 {
   "name": "@broofa/asyncproxy",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A simple, intuitive solution for converting node-style APIs to Promises.",
   "main": "index.js",
   "funding": ["https://github.com/sponsors/broofs"],

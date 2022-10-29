@@ -1,6 +1,6 @@
 {
   "name": "@broofa/asyncconcat",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Async method to concatenate a stream into a buffer",
   "main": "index.js",
   "funding": ["https://github.com/sponsors/broofs"],
