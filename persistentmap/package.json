@@ -1,8 +1,8 @@
 {
   "name": "persistentmap",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "An ES6 Map with Redis-inspired persistence and durability.",
-  "funding": ["https://github.com/sponsors/broofs"],
+  "funding": ["https://github.com/sponsors/broofa"],
   "main": "index.js",
   "scripts": {
     "test": "nocha test.js"
