@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/broofa/BroofaJS/issues"
   },
-  "homepage": "https://github.com/broofa/BroofaJS#readme"
+  "homepage": "https://github.com/broofa/BroofaJS#readme",
+  "funding": [
+    "https://github.com/sponsors/broofa"
+  ]
 }
