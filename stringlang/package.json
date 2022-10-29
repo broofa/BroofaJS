@@ -2,6 +2,7 @@
   "name": "@broofa/stringlang",
   "version": "2.0.0",
   "description": "Count the characters in a string by unicode block",
+  "funding": ["https://github.com/sponsors/broofs"],
   "main": "index.js",
   "type": "module",
   "files": [

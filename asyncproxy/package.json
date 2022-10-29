@@ -3,6 +3,7 @@
   "version": "1.0.4",
   "description": "A simple, intuitive solution for converting node-style APIs to Promises.",
   "main": "index.js",
+  "funding": ["https://github.com/sponsors/broofs"],
   "scripts": {
     "prepare": "npm test",
     "test": "mocha test/test.js"
