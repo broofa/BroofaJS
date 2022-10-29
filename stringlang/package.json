@@ -2,7 +2,9 @@
   "name": "@broofa/stringlang",
   "version": "2.0.1",
   "description": "Count the characters in a string by unicode block",
-  "funding": ["https://github.com/sponsors/broofs"],
+  "funding": [
+    "https://github.com/sponsors/broofs"
+  ],
   "main": "index.js",
   "type": "module",
   "files": [
@@ -11,14 +13,12 @@
     "getUnicodBlock.js"
   ],
   "devDependencies": {
-    "node-fetch": "2.6.1",
-    "runmd": "^1.0.1"
+    "node-fetch": "2.6.7"
   },
   "scripts": {
     "build": "node scripts/build.js > data/blocks.js",
     "test": "node test",
-    "md": "runmd --watch --output=README.md src/README_js.md",
-    "prepare": "npm test && runmd --output=README.md src/README_js.md"
+    "prepare": "npm test"
   },
   "repository": {
     "type": "git",
