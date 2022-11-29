@@ -11,4 +11,3 @@ often free from dependencies on other modules.  License is typically ISC, but se
 | [@broofa/jsondiff](jsondiff) | Pragmatic, intuitive diffing and patching of JSON objects |
 | [nocha](nocha) | A mocha-inspired test utility |
 | [persistentmap](persistentmap) | An ES6 Map with Redis-inspired persistence and durability. |
-| [@broofa/stringlang](stringlang) | Count the characters in a string by unicode block |
